@@ -1,5 +1,33 @@
 {
   "devDependencies": {
-    "typescript": "^5.8.2"
-  }
+    "@types/node": "^22.14.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "crypto": "^1.0.1",
+    "crypto-js": "^4.2.0",
+    "fastify": "^5.3.0",
+    "prisma": "^6.6.0"
+  },
+  "name": "api-tourmap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node --watch --no-warnings Dist/Test/exeServer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GustavoGB111/TourMap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GustavoGB111/TourMap/issues"
+  },
+  "homepage": "https://github.com/GustavoGB111/TourMap#readme"
 }

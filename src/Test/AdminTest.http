@@ -1,0 +1,57 @@
+POST http://localhost:3333/register/admin
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Zé da padaria",
+    "email": "kkkkk@gmail.com",
+    "password": "kkkkkkkkk"
+}
+
+###
+POST http://localhost:3333/register/admin
+Content-Type: application/json
+Accept: application/json
+
+{   
+    "name": "Admin1234", 
+    "email": "admin@gmail.com", 
+    "password": "123456789" 
+}
+
+###
+
+POST http://localhost:3333/login/admin
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Zé da padaria",
+    "email": "kkkkk@gmail.com",
+    "password": "kkkkkkkkk"
+}
+
+###
+POST http://localhost:3333/login/admin
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Zé da padari",
+    "email": "kkkkk@gmail.com",
+    "password": "kkkkkkkkk"
+}
+
+###
+GET http://localhost:3333/get/admin/43a2ae50-4c51-4842-b549-dbe8b72f4d8d
+
+###
+GET http://localhost:3333/get/admin/ca2c85c0-b1b8-4b49-b691-131ae3665cbe
+
+###
+
+GET http://localhost:3333/get/admin/list
+
+###
+
+DELETE http://localhost:3333/delete/admin/list
