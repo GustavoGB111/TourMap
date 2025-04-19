@@ -46,7 +46,6 @@ function RoutesAdmin() {
                 return reply.status(201).send(response.id);
             }
             catch (error) {
-                console.log("Tentando criar usuário:", name, email);
                 console.error("Erro ao criar usuário:", error);
                 return reply.status(500).send({ message: "Erro interno do servidor" });
             }

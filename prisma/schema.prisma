@@ -20,3 +20,11 @@ model User_Client {
     email String @unique 
     password String
 }
+
+model User_Business {
+    id String @id @default(uuid())
+    CNPJ String
+    name String 
+    email String @unique 
+    password String
+}
