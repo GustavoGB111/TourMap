@@ -1,7 +1,7 @@
 import { fastify } from 'fastify';
-import RoutesAdmin from "../Controllers/Admin";
-import RoutesClient from '../Controllers/Client';
-import RoutesBusiness from '../Controllers/Business';
+import RoutesAdmin from "../Controllers/Login/Admin";
+import RoutesClient from '../Controllers/Login/Client';
+import RoutesBusiness from '../Controllers/Login/Business';
 
 const server = fastify();
 
