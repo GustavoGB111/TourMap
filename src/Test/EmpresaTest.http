@@ -3,35 +3,10 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "name": "Zé",
-    "email": "kkkk@gmail.com",
-    "password": "kkkkkkkkk",
+    "name": "businessMauro",
+    "email": "MauroBusiness@gmail.com",
+    "password": "Mauro1234",
     "CNPJ": "12.345.678/0001-95"
-}
-
-###
-POST http://localhost:3333/register/business
-Content-Type: application/json
-Accept: application/json
-
-{   
-    "name": "Admin123", 
-    "email": "adm@gmail.com", 
-    "password": "123456789",
-    "CNPJ": "98.765.432/0001-60"
-}
-
-###
-
-POST http://localhost:3333/login/business
-Content-Type: application/json
-Accept: application/json
-
-{   
-    "name": "Admin123", 
-    "email": "adm@gmail.com", 
-    "password": "123456789",
-    "CNPJ": "98.765.432/0001-60"
 }
 
 ###
@@ -40,10 +15,25 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "name": "Zé",
-    "email": "kkkk@gmail.com",
-    "password": "kkkkkkkkk",
+    "name": "businessMauro",
+    "email": "MauroBusiness@gmail.com",
+    "password": "Mauro1234",
     "CNPJ": "12.345.678/0001-95"
+}
+
+###
+POST http://localhost:3333/edit/business
+Content-Type: application/json
+Accept: application/json
+
+{
+    "id": "1b6081f9-d75e-4ef9-826b-0dc9d4d6d6aa",
+    "oldName": "businessMauro",
+    "newName": "Novo Zé da padaria",
+    "oldEmail": "MauroBusiness@gmail.com",
+    "newEmail": "SEUZÉDOIS@gmail.com",
+    "oldPassword": "Mauro1234",
+    "newPassword": "kkkkkkkkkOIMAN"
 }
 
 ###

@@ -14,11 +14,14 @@ export default async function RoutesAdmin() {
 
         if (!name || !email) {
             return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
-        } else if (!emailRegex.test(email)) {
+        } 
+        if (!emailRegex.test(email)) {
             return reply.status(400).send({ message: "Formato de email não suportado" });
-        } else if (password.length < 8) {
+        } 
+        if (password.length < 8) {
             return reply.status(400).send({ message: "Senha deve ter pelo menos 8 caracteres" });
-        } else if (existingUserEmail) {
+        } 
+        if (existingUserEmail) {
             return reply.status(400).send({ message: "Email já cadastrado" });
         }
 
@@ -75,7 +78,7 @@ server.get("/get/admin/:id", async (request, reply) => {
         if (!id) {
             return reply.status(404).send({message: "ID não preenchido"});
         }
-        else if (existingUserEmail) {
+        if (existingUserEmail) {
             return reply.status(200).send(existingUserEmail);
         } else {
             return reply.status(404).send({message: "Usuario não encontrado"});
@@ -122,14 +125,12 @@ server.post("/edit/admin", async (request, reply) => {
         const userExistingEmail = await prismaClient.user_Admin.findUnique({where: {email: newEmail}});
 
         if (!userExisting) {
-            console.log(userExisting);
             return reply.status(500).send({message: "Usuario não existe"});
         }
         
         const {name, email, password} = userExisting; 
 
         if (!oldEmail || !oldName || !oldPassword) {
-            console.log("chegou aqui")
             return reply.status(500).send({message: "Algum dos campo não foi preenchido"});
         }
         if (newEmail != undefined) {
@@ -149,17 +150,15 @@ server.post("/edit/admin", async (request, reply) => {
             return reply.status(500).send({message: "Email ja cadastrado"})  
         }
 
-        console.log({name, oldName, email, oldEmail, password, oldPassword})
         if (name === oldName && email === oldEmail && password === oldPassword) {
             const response = await prismaClient.user_Admin.update({
-                where: { id: id },
+                where: { id },
                 data: {
                     name: newName ?? oldName,
                     email: newEmail ?? oldEmail,
                     password: newPassword ?? oldPassword
                 }
             });
-            console.log("Resposta do update:", response);
             return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
         } else {
             return reply.status(404).send({ message: "Campos Inválidos"});

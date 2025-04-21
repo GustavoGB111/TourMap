@@ -27,13 +27,13 @@ function RoutesAdmin() {
                 if (!name || !email) {
                     return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
                 }
-                else if (!emailRegex.test(email)) {
+                if (!emailRegex.test(email)) {
                     return reply.status(400).send({ message: "Formato de email não suportado" });
                 }
-                else if (password.length < 8) {
+                if (password.length < 8) {
                     return reply.status(400).send({ message: "Senha deve ter pelo menos 8 caracteres" });
                 }
-                else if (existingUserEmail) {
+                if (existingUserEmail) {
                     return reply.status(400).send({ message: "Email já cadastrado" });
                 }
                 const response = yield prismaClient_1.prismaClient.user_Admin.create({
@@ -85,7 +85,7 @@ function RoutesAdmin() {
                 if (!id) {
                     return reply.status(404).send({ message: "ID não preenchido" });
                 }
-                else if (existingUserEmail) {
+                if (existingUserEmail) {
                     return reply.status(200).send(existingUserEmail);
                 }
                 else {
@@ -131,12 +131,10 @@ function RoutesAdmin() {
                 const userExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id } });
                 const userExistingEmail = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { email: newEmail } });
                 if (!userExisting) {
-                    console.log(userExisting);
                     return reply.status(500).send({ message: "Usuario não existe" });
                 }
                 const { name, email, password } = userExisting;
                 if (!oldEmail || !oldName || !oldPassword) {
-                    console.log("chegou aqui");
                     return reply.status(500).send({ message: "Algum dos campo não foi preenchido" });
                 }
                 if (newEmail != undefined) {
@@ -155,18 +153,19 @@ function RoutesAdmin() {
                 if (userExistingEmail != null) {
                     return reply.status(500).send({ message: "Email ja cadastrado" });
                 }
-                console.log({ name, oldName, email, oldEmail, password, oldPassword });
                 if (name === oldName && email === oldEmail && password === oldPassword) {
                     const response = yield prismaClient_1.prismaClient.user_Admin.update({
-                        where: { id: id },
+                        where: { id },
                         data: {
                             name: newName !== null && newName !== void 0 ? newName : oldName,
                             email: newEmail !== null && newEmail !== void 0 ? newEmail : oldEmail,
                             password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword
                         }
                     });
-                    console.log("Resposta do update:", response);
                     return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
+                }
+                else {
+                    return reply.status(404).send({ message: "Campos Inválidos" });
                 }
             }
             catch (error) {

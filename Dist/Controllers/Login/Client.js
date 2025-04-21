@@ -26,13 +26,13 @@ function RoutesClient() {
                 if (!name || !email) {
                     return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
                 }
-                else if (!emailRegex.test(email)) {
+                if (!emailRegex.test(email)) {
                     return reply.status(400).send({ message: "Formato de email não suportado" });
                 }
-                else if (password.length < 8) {
+                if (password.length < 8) {
                     return reply.status(400).send({ message: "Senha deve ter pelo menos 8 caracteres" });
                 }
-                else if (existingUserEmail) {
+                if (existingUserEmail) {
                     return reply.status(400).send({ message: "Email já cadastrado" });
                 }
                 const response = yield prismaClient_1.prismaClient.user_Client.create({
@@ -84,7 +84,7 @@ function RoutesClient() {
                 if (!id) {
                     return reply.status(404).send({ message: "ID não preenchido" });
                 }
-                else if (existingUserEmail) {
+                if (existingUserEmail) {
                     return reply.status(200).send(existingUserEmail);
                 }
                 else {
@@ -120,6 +120,55 @@ function RoutesClient() {
             catch (error) {
                 console.error("Erro ao excluir registros:", error);
                 return reply.status(500).send({ message: "Erro interno no servidor", error });
+            }
+        }));
+        exeServer_1.default.post("/edit/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword } = body;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            try {
+                const userExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id } });
+                const userExistingEmail = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { email: newEmail } });
+                if (!userExisting) {
+                    return reply.status(500).send({ message: "Usuario não existe" });
+                }
+                const { name, email, password } = userExisting;
+                if (!oldEmail || !oldName || !oldPassword) {
+                    return reply.status(500).send({ message: "Algum dos campo não foi preenchido" });
+                }
+                if (newEmail != undefined) {
+                    if (!emailRegex.test(newEmail)) {
+                        return reply.status(500).send({ message: "Novo Email inválido" });
+                    }
+                }
+                if (!emailRegex.test(oldEmail)) {
+                    return reply.status(500).send({ message: "Antigo Email inválido" });
+                }
+                if (newPassword != undefined) {
+                    if (newPassword.length < 8) {
+                        return reply.status(500).send({ message: "Senha não pode ter menos que 8 caracteres" });
+                    }
+                }
+                if (userExistingEmail != null) {
+                    return reply.status(500).send({ message: "Email ja cadastrado" });
+                }
+                if (name === oldName && email === oldEmail && password === oldPassword) {
+                    const response = yield prismaClient_1.prismaClient.user_Client.update({
+                        where: { id },
+                        data: {
+                            name: newName !== null && newName !== void 0 ? newName : oldName,
+                            email: newEmail !== null && newEmail !== void 0 ? newEmail : oldEmail,
+                            password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword
+                        }
+                    });
+                    return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
+                }
+                else {
+                    return reply.status(404).send({ message: "Campos Inválidos" });
+                }
+            }
+            catch (error) {
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
     });

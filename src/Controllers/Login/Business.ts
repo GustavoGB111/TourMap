@@ -10,17 +10,21 @@ export default async function RoutesBusiness() {
         const CNPJRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
 
         try {
-            const existingUserEmail = await prismaClient.user_Client.findUnique({where: {email}})
+            const existingUserEmail = await prismaClient.user_Business.findUnique({where: {email}})
     
             if (!name || !email ) {
                 return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
-            } else if (!emailRegex.test(email)) {
+            }
+            if (!emailRegex.test(email)) {
                 return reply.status(400).send({ message: "Formato de email não suportado" });
-            } else if (!CNPJRegex.test(CNPJ)) {
+            }
+            if (!CNPJRegex.test(CNPJ)) {
                 return reply.status(400).send({ message: "Formato de CNPJ não suportado" });   
-            } else if (password.length < 8) {
+            } 
+            if (password.length < 8) {
                 return reply.status(400).send({ message: "Senha deve ter pelo menos 8 caracteres" });
-            } else if (existingUserEmail) {
+            } 
+            if (existingUserEmail) {
                 return reply.status(400).send({ message: "Usuario já cadastrado" });
             }
     
@@ -78,7 +82,7 @@ export default async function RoutesBusiness() {
             if (!id) {
                 return reply.status(404).send({message: "ID não preenchido"});
             }
-            else if (existingUserEmail) {
+            if (existingUserEmail) {
                 return reply.status(200).send(existingUserEmail);
             } else {
                 return reply.status(404).send({message: "Usuario não encontrado"});
@@ -114,4 +118,58 @@ export default async function RoutesBusiness() {
             return reply.status(500).send({ message: "Erro interno no servidor", error });
         }
     });
+
+    server.post("/edit/business", async (request, reply) => {
+        const body = request.body as {id: string, oldName: string, newName?: string, oldEmail:string ,newEmail?: string, oldPassword: string, newPassword?: string};
+        const {id,oldName, newName, oldEmail, newEmail, oldPassword, newPassword} = body;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        try {
+            const userExisting = await prismaClient.user_Business.findUnique({where: {id}}) as {CNPJ: string, name: string, email: string, password: string};
+            const userExistingEmail = await prismaClient.user_Business.findUnique({where: {email: newEmail}});
+    
+            if (!userExisting) {
+                return reply.status(500).send({message: "Usuario não existe"});
+            }
+            
+            const {CNPJ, name, email, password} = userExisting; 
+    
+            if (!oldEmail || !oldName || !oldPassword) {
+                return reply.status(500).send({message: "Algum dos campo não foi preenchido"});
+            }
+            if (newEmail != undefined) {
+                if (!emailRegex.test(newEmail)){
+                    return reply.status(500).send({message: "Novo Email inválido"});  
+                }
+            }
+            if (!emailRegex.test(oldEmail))  {
+                return reply.status(500).send({message: "Antigo Email inválido"});
+            }
+            if (newPassword != undefined) {
+                if (newPassword.length < 8) {
+                    return reply.status(500).send({message: "Senha não pode ter menos que 8 caracteres"});  
+                }
+            }   
+            if (userExistingEmail != null) {
+                return reply.status(500).send({message: "Email ja cadastrado"})  
+            }
+    
+            if (name === oldName && email === oldEmail && password === oldPassword) {
+                const response = await prismaClient.user_Business.update({
+                    where: { id },
+                    data: {
+                        name: newName ?? oldName,
+                        email: newEmail ?? oldEmail,
+                        password: newPassword ?? oldPassword
+                    }
+                });
+                return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
+            } else {
+                return reply.status(404).send({ message: "Campos Inválidos"});
+            }
+    
+        } catch (error) {
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
+        }
+    })
 }

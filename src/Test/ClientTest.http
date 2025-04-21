@@ -3,20 +3,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "name": "Zé da padaria",
-    "email": "kkkkk@gmail.com",
-    "password": "kkkkkkkkk"
-}
-
-###
-POST http://localhost:3333/register/client
-Content-Type: application/json
-Accept: application/json
-
-{   
-    "name": "Admin1234", 
-    "email": "admin@gmail.com", 
-    "password": "123456789" 
+    "name": "Dona Creuza",
+    "email": "DonaCreuza@gmail.com",
+    "password": "DonaCreuza123"
 }
 
 ###
@@ -26,27 +15,27 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "name": "Zé da padaria",
-    "email": "kkkkk@gmail.com",
-    "password": "kkkkkkkkk"
+    "name": "Dona Creuza",
+    "email": "DonaCreuza@gmail.com",
+    "password": "DonaCreuza123"
 }
-
 ###
-POST http://localhost:3333/login/client
+POST http://localhost:3333/edit/client
 Content-Type: application/json
 Accept: application/json
 
 {
-    "name": "Zé da padari",
-    "email": "kkkkk@gmail.com",
-    "password": "kkkkkkkkk"
+    "id": "eaefd3f6-d072-408d-8c2b-4bdde84dc7bc",
+    "oldName": "Nova Dona Creuza",
+    "newName": "Dona",
+    "oldEmail": "DonaCreuzaNova@gmail.com",
+    "newEmail": "Quero@gmail.com",
+    "oldPassword": "QueroMaisDonaCreuzaNão",
+    "newPassword": "12345678"
 }
 
 ###
-GET http://localhost:3333/get/client/ad0433aa-76d5-453b-bd74-3e5a6e93b353
-
-###
-GET http://localhost:3333/get/client/ad80bd8b-c7b3-482c-a4cc-401e39ebd02e
+GET http://localhost:3333/get/client/eaefd3f6-d072-408d-8c2b-4bdde84dc7bc
 
 ###
 

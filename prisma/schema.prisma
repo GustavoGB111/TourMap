@@ -28,3 +28,7 @@ model User_Business {
     email String @unique 
     password String
 }
+
+model Ponto_Turistico {
+    id String @id @default(uuid())
+}
