@@ -43,6 +43,21 @@ Accept: application/json
 }
 
 ###
+POST http://localhost:3333/edit/admin
+Content-Type: application/json
+Accept: application/json
+
+{
+    "id": "ca2c85c0-b1b8-4b49-b691-131ae3665cbe",
+    "oldName": "Zé da padaria",
+    "newName": "Novo Zé da padaria",
+    "oldEmail": "kkkkk@gmail.com",
+    "newEmail": "SEUZÉ@gmail.com",
+    "oldPassword": "kkkkkkkkk",
+    "newPassword": "kkkkkkkkkOIMAN"
+}
+
+###
 GET http://localhost:3333/get/admin/43a2ae50-4c51-4842-b549-dbe8b72f4d8d
 
 ###
