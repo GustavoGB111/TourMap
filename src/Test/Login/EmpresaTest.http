@@ -22,7 +22,7 @@ Accept: application/json
 }
 
 ###
-POST http://localhost:3333/edit/business
+POST http://localhost:3333/update/business
 Content-Type: application/json
 Accept: application/json
 

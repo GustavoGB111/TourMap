@@ -115,7 +115,7 @@ server.delete("/delete/admin/list", async (request, reply) => {
     }
 });
 
-server.post("/edit/admin", async (request, reply) => {
+server.post("/update/admin", async (request, reply) => {
     const body = request.body as {id: string, oldName: string, newName?: string, oldEmail:string ,newEmail?: string, oldPassword: string, newPassword?: string};
     const {id ,oldName, newName, oldEmail, newEmail, oldPassword, newPassword} = body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

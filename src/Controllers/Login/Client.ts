@@ -114,7 +114,7 @@ export default async function RoutesClient() {
         }
     });
 
-    server.post("/edit/client", async (request, reply) => {
+    server.post("/update/client", async (request, reply) => {
         const body = request.body as {id: string, oldName: string, newName?: string, oldEmail:string ,newEmail?: string, oldPassword: string, newPassword?: string};
         const {id ,oldName, newName, oldEmail, newEmail, oldPassword, newPassword} = body;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

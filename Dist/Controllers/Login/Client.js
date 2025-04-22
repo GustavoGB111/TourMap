@@ -122,7 +122,7 @@ function RoutesClient() {
                 return reply.status(500).send({ message: "Erro interno no servidor", error });
             }
         }));
-        exeServer_1.default.post("/edit/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+        exeServer_1.default.post("/update/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword } = body;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

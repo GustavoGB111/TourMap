@@ -43,7 +43,7 @@ Accept: application/json
 }
 
 ###
-POST http://localhost:3333/edit/admin
+POST http://localhost:3333/update/admin
 Content-Type: application/json
 Accept: application/json
 

@@ -20,7 +20,7 @@ Accept: application/json
     "password": "DonaCreuza123"
 }
 ###
-POST http://localhost:3333/edit/client
+POST http://localhost:3333/update/client
 Content-Type: application/json
 Accept: application/json
 

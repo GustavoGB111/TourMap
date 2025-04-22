@@ -8,27 +8,46 @@ datasource db {
 }
 
 model User_Admin {
-    id String @id @default(uuid())
-    name String 
-    email String @unique 
-    password String
+  id String @id @default(uuid())
+  name String 
+  email String @unique 
+  password String
 }
 
 model User_Client {
-    id String @id @default(uuid())
-    name String 
-    email String @unique 
-    password String
+  id String @id @default(uuid())
+  name String 
+  email String @unique 
+  password String
 }
 
 model User_Business {
-    id String @id @default(uuid())
-    CNPJ String
-    name String 
-    email String @unique 
-    password String
+  id String @id @default(uuid())
+  CNPJ String
+  name String 
+  email String @unique 
+  password String
+
+  Ponto_Comercial Ponto_Comercial[]
+}
+
+model Ponto_Comercial {
+  id String @id @default(uuid())
+  name String
+  description String
+  local String @unique
+  creationDate DateTime @db.Date
+
+  businessId String
+  User_Business User_Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
 }
 
 model Ponto_Turistico {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
+  name String
+  description String
+  creationDate DateTime @db.Date
+  reportNumber Int @default(0)
+  local String @unique 
 }
