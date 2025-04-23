@@ -15,11 +15,18 @@ model User_Admin {
 }
 
 model User_Client {
-  id String @id @default(uuid())
-  name String 
-  email String @unique 
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
   password String
+
+  commentsByEmail Comment[] @relation("commentsByEmail")
+  commentsById Comment[] @relation("commentsById")
+
+  avaliationsByEmail Avaliation[] @relation("avaliationsByEmail")
+  avaliationsById Avaliation[] @relation("avaliationsById")
 }
+
 
 model User_Business {
   id String @id @default(uuid())
@@ -50,4 +57,28 @@ model Ponto_Turistico {
   creationDate DateTime @db.Date
   reportNumber Int @default(0)
   local String @unique 
+}
+
+model Comment {
+  id String   @id @default(uuid())
+  dataPublication DateTime @db.Date
+  content String
+
+  userEmail String
+  idCreator String
+
+  userClientByEmail User_Client @relation("commentsByEmail", fields: [userEmail], references: [email], onDelete: Cascade)
+  userClientById    User_Client @relation("commentsById", fields: [idCreator], references: [id], onDelete: Cascade)
+}
+
+model Avaliation {
+  id String   @id @default(uuid())
+  dataPublication DateTime @db.Date
+  avaliation Int
+
+  userEmail String
+  idCreator String
+
+  userClientByEmail User_Client @relation("avaliationsByEmail", fields: [userEmail], references: [email], onDelete: Cascade, map: "avaliationsByEmail_fkey")
+  userClientById User_Client @relation("avaliationsById", fields: [idCreator], references: [id], onDelete: Cascade, map: "avaliationsById_fkey")
 }
