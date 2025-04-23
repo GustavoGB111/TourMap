@@ -25,6 +25,8 @@ model User_Client {
 
   avaliationsByEmail Avaliation[] @relation("avaliationsByEmail")
   avaliationsById Avaliation[] @relation("avaliationsById")
+
+  travelRoadMaps Travel_Road_Map[] @relation("UserClientRoadMaps")
 }
 
 
@@ -68,17 +70,30 @@ model Comment {
   idCreator String
 
   userClientByEmail User_Client @relation("commentsByEmail", fields: [userEmail], references: [email], onDelete: Cascade)
-  userClientById    User_Client @relation("commentsById", fields: [idCreator], references: [id], onDelete: Cascade)
+  userClientById User_Client @relation("commentsById", fields: [idCreator], references: [id], onDelete: Cascade)
 }
 
 model Avaliation {
-  id String   @id @default(uuid())
+  id String @id @default(uuid()) 
   dataPublication DateTime @db.Date
   avaliation Int
-
   userEmail String
   idCreator String
 
-  userClientByEmail User_Client @relation("avaliationsByEmail", fields: [userEmail], references: [email], onDelete: Cascade, map: "avaliationsByEmail_fkey")
-  userClientById User_Client @relation("avaliationsById", fields: [idCreator], references: [id], onDelete: Cascade, map: "avaliationsById_fkey")
+  userClientByEmail User_Client @relation("avaliationsByEmail", fields: [userEmail], references: [email], onDelete: Cascade)
+  userClientById User_Client @relation("avaliationsById", fields: [idCreator], references: [id], onDelete: Cascade)
+
+  travelRoadMaps Travel_Road_Map[] @relation("AvaliationRoadMaps")
+}
+
+model Travel_Road_Map {
+  id String @id @default(uuid())
+  title String
+  dataPublication DateTime @db.Date
+  description String
+  idCreator String
+  avaliationId String  
+
+  userClient User_Client @relation("UserClientRoadMaps", fields: [idCreator], references: [id], onDelete: Cascade)
+  userAvaliation Avaliation @relation("AvaliationRoadMaps", fields: [avaliationId], references: [id], onDelete: Cascade)
 }

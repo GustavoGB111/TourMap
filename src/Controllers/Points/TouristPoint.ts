@@ -1,6 +1,5 @@
 import server from "../../Test/exeServer";
 import { prismaClient } from "../../Database/prismaClient";
-import { request } from "http";
 
 export default async function RoutesTouristPoints() {
     server.post("/register/touristPoint", async (request, reply) => {
@@ -85,7 +84,7 @@ export default async function RoutesTouristPoints() {
         }
     });
 
-    server.post("/post/touristPoint", async (request, reply) => {
+    server.post("/get/touristPoint", async (request, reply) => {
         const body = request.body as {idUser: string; idTouristPoint: string};
         const {idUser, idTouristPoint} = body;
 
@@ -112,7 +111,7 @@ export default async function RoutesTouristPoints() {
         }
     });
 
-    server.post("/post/list/touristPoint", async (request, reply) => {
+    server.post("/get/list/touristPoint", async (request, reply) => {
         const {idUser} = request.body as {idUser: string};
 
         try {

@@ -25,7 +25,7 @@ Accept: application/json
 }
 
 ###
-POST http://localhost:3333/post/touristPoint
+POST http://localhost:3333/get/touristPoint
 Content-Type: application/json
 Accept: application/json
 
@@ -35,7 +35,7 @@ Accept: application/json
 }
 
 ###
-POST http://localhost:3333/post/list/touristPoint
+POST http://localhost:3333/get/list/touristPoint
 Content-Type: application/json
 Accept: application/json
 
