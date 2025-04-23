@@ -19,8 +19,7 @@ function RoutesTouristPoints() {
     return __awaiter(this, void 0, void 0, function* () {
         exeServer_1.default.post("/register/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { id, name, description, creationDateUnformated, local } = body;
-            const creationDate = new Date(creationDateUnformated).toISOString().split("T")[0];
+            const { id, name, description, creationDate, local } = body;
             try {
                 if (!name || !description || !creationDate || !local) {
                     return reply.status(400).send({ message: "Algum campo não preenchido" });
@@ -44,7 +43,7 @@ function RoutesTouristPoints() {
                         name,
                         description,
                         local,
-                        creationDate: creationDateUnformated
+                        creationDate
                     }
                 });
                 return reply.status(201).send({ response, message: "Ponto turistico adicionado" });

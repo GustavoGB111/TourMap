@@ -27,7 +27,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "id": "1b6081f9-d75e-4ef9-826b-0dc9d4d6d6aa",
+    "id": "e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0",
     "oldName": "businessMauro",
     "newName": "Novo Zé da padaria",
     "oldEmail": "MauroBusiness@gmail.com",
@@ -37,10 +37,7 @@ Accept: application/json
 }
 
 ###
-GET http://localhost:3333/get/business/f345e7eb-3b68-46f5-b00b-a335a990b18d
-
-###
-GET http://localhost:3333/get/business/fc1aa167-df6b-4704-9814-036fea10449f
+GET http://localhost:3333/get/business/e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0
 
 ###
 

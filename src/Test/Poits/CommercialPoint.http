@@ -1,0 +1,53 @@
+POST http://localhost:3333/register/commercialPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idBusiness":"e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0", 
+    "name":"Loja do seu Mauro",
+    "local":"Rua Mauro Jusé",
+    "description":"Lojinha do seu Mauro jose",
+    "creationDate": "2025-01-22T21:05:30.123Z"
+}
+
+###
+POST http://localhost:3333/update/commercialPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idBusiness":"e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0", 
+    "idPoint":"854ba7d9-574b-46c4-819c-b665ab2d2c96",
+    "newName":"Loja do seu Mauro",
+    "newLocal":"Rua Mauro José de Alcantra",
+    "newDescription":"Lojinha do seu Mauro jose"
+}
+
+###
+POST http://localhost:3333/get/commercialPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idBusiness":"e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0", 
+    "idPoint":"854ba7d9-574b-46c4-819c-b665ab2d2c96"
+}
+
+###
+POST http://localhost:3333/get/list/commercialPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idBusiness":"e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0"
+}
+
+###
+DELETE http://localhost:3333/delete/commercialPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idBusiness":"e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0", 
+    "idPoint":"854ba7d9-574b-46c4-819c-b665ab2d2c96"
+}

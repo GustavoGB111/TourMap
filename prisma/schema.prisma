@@ -23,12 +23,12 @@ model User_Client {
 
 model User_Business {
   id String @id @default(uuid())
-  CNPJ String
-  name String 
-  email String @unique 
+  CNPJ String @unique
+  name String
+  email String @unique
   password String
 
-  Ponto_Comercial Ponto_Comercial[]
+  pontosComerciais Ponto_Comercial[]
 }
 
 model Ponto_Comercial {
@@ -39,8 +39,8 @@ model Ponto_Comercial {
   creationDate DateTime @db.Date
 
   businessId String
-  User_Business User_Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
+  User_Business User_Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model Ponto_Turistico {

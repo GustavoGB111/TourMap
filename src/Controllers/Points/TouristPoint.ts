@@ -4,10 +4,8 @@ import { request } from "http";
 
 export default async function RoutesTouristPoints() {
     server.post("/register/touristPoint", async (request, reply) => {
-        const body = request.body as { id: string;name: string; description: string; creationDateUnformated: Date; local: string};
-        const {id, name, description, creationDateUnformated, local} = body;      
-        
-        const creationDate = new Date(creationDateUnformated).toISOString().split("T")[0];
+        const body = request.body as { id: string;name: string; description: string; creationDate: Date; local: string};
+        const {id, name, description, creationDate, local} = body;      
         
         try {
             if (!name || !description || !creationDate || !local) {
@@ -31,7 +29,7 @@ export default async function RoutesTouristPoints() {
                     name,
                     description,
                     local,
-                    creationDate: creationDateUnformated
+                    creationDate
                 }
             });
             return reply.status(201).send({response ,message: "Ponto turistico adicionado"})
