@@ -1,0 +1,64 @@
+POST http://localhost:3333/register/touristPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "id": "43a2ae50-4c51-4842-b549-dbe8b72f4d8d",
+    "name": "Loja do seu PauDuro",
+    "description": "Loja do seu PAUDURO",
+    "creationDateUnformated": "2025-04-21T17:44:00Z",
+    "local": "Loja do seu PauDuro"
+}
+
+###
+PUT http://localhost:3333/update/touristPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idUser": "43a2ae50-4c51-4842-b549-dbe8b72f4d8d",
+    "idTouristPoint":"df777da0-7c84-4bc3-abd0-0f3abe00aa9b",
+    "newName": "Loja do seu PauDuro",
+    "newDescription": "Loja do seu PAUDURO",
+    "creationDateUnformated": "2025-04-21T17:44:00Z",
+    "newLocal": "Loja do seu PauMole"
+}
+
+###
+POST http://localhost:3333/get/touristPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idUser": "43a2ae50-4c51-4842-b549-dbe8b72f4d8d",
+    "idTouristPoint":"df777da0-7c84-4bc3-abd0-0f3abe00aa9b"
+}
+
+###
+POST http://localhost:3333/get/list/touristPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idUser": "43a2ae50-4c51-4842-b549-dbe8b72f4d8d"
+}
+
+###
+DELETE http://localhost:3333/delete/list
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idUser": "43a2ae50-4c51-4842-b549-dbe8b72f4d8d",
+    "idTouristPoint":"df777da0-7c84-4bc3-abd0-0f3abe00aa9b",
+}
+
+###
+POST http://localhost:3333/report/touristPoint
+Content-Type: application/json
+Accept: application/json
+
+{
+    "idUser": "43a2ae50-4c51-4842-b549-dbe8b72f4d8d",
+    "idTouristPoint":"df777da0-7c84-4bc3-abd0-0f3abe00aa9b"
+}

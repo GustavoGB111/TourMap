@@ -1,0 +1,48 @@
+POST http://localhost:3333/register/business
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "businessMauro",
+    "email": "MauroBusiness@gmail.com",
+    "password": "Mauro1234",
+    "CNPJ": "12.345.678/0001-95"
+}
+
+###
+POST http://localhost:3333/login/business
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "businessMauro",
+    "email": "MauroBusiness@gmail.com",
+    "password": "Mauro1234",
+    "CNPJ": "12.345.678/0001-95"
+}
+
+###
+POST http://localhost:3333/update/business
+Content-Type: application/json
+Accept: application/json
+
+{
+    "id": "e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0",
+    "oldName": "businessMauro",
+    "newName": "Novo Zé da padaria",
+    "oldEmail": "MauroBusiness@gmail.com",
+    "newEmail": "SEUZÉDOIS@gmail.com",
+    "oldPassword": "Mauro1234",
+    "newPassword": "kkkkkkkkkOIMAN"
+}
+
+###
+GET http://localhost:3333/get/business/e92ac1e8-5b9d-49d9-8a6d-976cec94a0d0
+
+###
+
+GET http://localhost:3333/get/business/list
+
+###
+
+DELETE http://localhost:3333/delete/business/list
