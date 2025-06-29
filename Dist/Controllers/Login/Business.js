@@ -56,7 +56,7 @@ function RoutesBusiness() {
             }
             ;
         }));
-        //Login CLIENT
+        //Login BUSINESS
         exeServer_1.default.post("/login/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { name, email, password, CNPJ } = body;
@@ -81,9 +81,9 @@ function RoutesBusiness() {
                 return reply.status(500).send({ error });
             }
         }));
-        //Get CLIENT
-        exeServer_1.default.get("/get/business/:id", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            const body = request.params;
+        //Get BUSINESS
+        exeServer_1.default.post("/get/business/id", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
             const { id } = body;
             try {
                 const existingUserEmail = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id } });
@@ -102,7 +102,7 @@ function RoutesBusiness() {
                 return reply.status(500).send(error);
             }
         }));
-        //Get CLIENT LIST
+        //Get BUSINESS LIST
         exeServer_1.default.get("/get/business/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const clientList = yield prismaClient_1.prismaClient.user_Business.findMany();
@@ -117,20 +117,9 @@ function RoutesBusiness() {
                 return reply.status(500).send(error);
             }
         }));
-        exeServer_1.default.delete("/delete/business/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield prismaClient_1.prismaClient.user_Business.deleteMany({});
-                console.log("Todos os itens da tabela user_Business foram deletados."); // Apenas log no terminal
-                return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
-            }
-            catch (error) {
-                console.error("Erro ao excluir registros:", error);
-                return reply.status(500).send({ message: "Erro interno no servidor", error });
-            }
-        }));
         exeServer_1.default.post("/update/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { id, newName, oldPassword, newPassword, newTelefone } = body;
+            const { id, newName, oldPassword, newPassword, newTelefone, userImageUrl } = body;
             try {
                 if (!id || !oldPassword) {
                     return reply.status(500).send({ message: "o campo id ou o campo senha não podem ser vazios" });
@@ -147,13 +136,26 @@ function RoutesBusiness() {
                     data: {
                         name: newName !== null && newName !== void 0 ? newName : idExisting.name,
                         password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword,
-                        telefone: newTelefone !== null && newTelefone !== void 0 ? newTelefone : idExisting.telefone
+                        telefone: newTelefone !== null && newTelefone !== void 0 ? newTelefone : idExisting.telefone,
+                        userImageUrl
                     }
                 });
                 return reply.status(200).send({ response, message: "atualizado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
+            }
+        }));
+        // não deve ser usado
+        exeServer_1.default.delete("/delete/business/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield prismaClient_1.prismaClient.user_Business.deleteMany({});
+                console.log("Todos os itens da tabela user_Business foram deletados."); // Apenas log no terminal
+                return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
+            }
+            catch (error) {
+                console.error("Erro ao excluir registros:", error);
+                return reply.status(500).send({ message: "Erro interno no servidor", error });
             }
         }));
     });

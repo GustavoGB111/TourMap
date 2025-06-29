@@ -57,7 +57,7 @@ function RoutesTouristPoints() {
             const body = request.body;
             const { idUser, idTouristPoint, newName, newDescription, newLocal } = body;
             try {
-                if (!idUser || !idTouristPoint) {
+                if (!idTouristPoint) {
                     return reply.status(400).send({ message: "id do Ponto Turistico não fornecido" });
                 }
                 ;
@@ -97,16 +97,12 @@ function RoutesTouristPoints() {
         }));
         exeServer_1.default.post("/get/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { idUser, idTouristPoint } = body;
+            const { idTouristPoint } = body;
             try {
-                if (!idTouristPoint || !idUser) {
+                if (!idTouristPoint) {
                     return reply.status(400).send({ message: "campos não preenchidos" });
                 }
-                const idUserExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id: idUser } });
                 const idTouristPointExisting = yield prismaClient_1.prismaClient.ponto_Turistico.findUnique({ where: { id: idTouristPoint } });
-                if (!idUserExisting) {
-                    return reply.status(400).send({ message: "ID do usuário não existente" });
-                }
                 if (!idTouristPointExisting) {
                     return reply.status(400).send({ message: "ID do ponto turístico não existente" });
                 }
@@ -117,24 +113,16 @@ function RoutesTouristPoints() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
-        exeServer_1.default.post("/get/list/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            const { idUser } = request.body;
+        exeServer_1.default.get("/get/list/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!idUser) {
-                    reply.status(400).send({ message: "campos não preenchidos" });
-                }
-                const idUserExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id: idUser } });
-                if (!idUserExisting) {
-                    return reply.status(400).send({ message: "ID do usuário não existente" });
-                }
                 const response = yield prismaClient_1.prismaClient.ponto_Turistico.findMany();
-                reply.status(200).send({ response });
+                reply.status(200).send({ response, message: "Todos os registros de Pontos Turisticos" });
             }
             catch (error) {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
-        exeServer_1.default.delete("/delete/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+        exeServer_1.default.delete("/delete/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser, idTouristPoint } = body;
             try {
@@ -158,7 +146,115 @@ function RoutesTouristPoints() {
         }));
         exeServer_1.default.post("/report/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { idUser, idTouristPoint } = body;
+            const { idUser, idTouristPoint, contentReport } = body;
+            try {
+                if (!idUser || !idTouristPoint || !contentReport) {
+                    return reply.status(400).send({ message: "Algum campo não completado" });
+                }
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
+                const idTouristPointExisting = yield prismaClient_1.prismaClient.ponto_Turistico.findUnique({ where: { id: idTouristPoint } });
+                const reportExisting = yield prismaClient_1.prismaClient.reportTouristPoint.findUnique({ where: { idUserReport: idUser, idTouristPoint } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idTouristPointExisting) {
+                    return reply.status(400).send({ message: "ID do ponto turistico não existente" });
+                }
+                ;
+                if (!!reportExisting) {
+                    return reply.status(400).send({ message: "você já denunciou esse ponto turistico" });
+                }
+                const { reportNumber } = idTouristPointExisting;
+                const reportNum = reportNumber + 1;
+                yield prismaClient_1.prismaClient.ponto_Turistico.update({ where: { id: idTouristPoint }, data: { reportNumber: reportNum } });
+                yield prismaClient_1.prismaClient.reportTouristPoint.create({
+                    data: {
+                        content: contentReport,
+                        userReportTouristPointByIdTouristPoint: { connect: { id: idTouristPoint } },
+                        userReportTouristPointByIdUserReport: { connect: { id: idUser } }
+                    }
+                });
+                return reply.status(200).send({ message: "Denunciado com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.post("/create/image/TouristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idUser, idTouristPoint, ImageUrl } = body;
+            try {
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id: idUser } });
+                const idTouristPointExisting = yield prismaClient_1.prismaClient.ponto_Turistico.findUnique({ where: { id: idTouristPoint } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idTouristPointExisting) {
+                    return reply.status(400).send({ message: "ID do ponto turistico não existente" });
+                }
+                ;
+                if (!ImageUrl) {
+                    return reply.status(400).send({ message: "a url não pode ser vazia" });
+                }
+                ;
+                yield prismaClient_1.prismaClient.imageTouristPoint.create({
+                    data: {
+                        image: ImageUrl,
+                        userTouristPointByTouristPointId: { connect: { id: idTouristPoint } }
+                    }
+                });
+                return reply.status(200).send({ message: "imagem adicionada com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.post("/get/image/list/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idTouristPoint } = body;
+            try {
+                const response = yield prismaClient_1.prismaClient.imageTouristPoint.findMany({ where: { idTouristPoint } });
+                return reply.status(200).send({ response, message: "Lista de imagens de um certo ponto turistico" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+            ;
+        }));
+        exeServer_1.default.delete("/delete/image/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idTouristPoint, imageUrl, idUser } = body;
+            try {
+                if (!idUser || !idTouristPoint || !imageUrl) {
+                    return reply.status(400).send({ message: "Algum campo não completado" });
+                }
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id: idUser } });
+                const idTouristPointExisting = yield prismaClient_1.prismaClient.ponto_Turistico.findUnique({ where: { id: idTouristPoint } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idTouristPointExisting) {
+                    return reply.status(400).send({ message: "ID do ponto turistico não existente" });
+                }
+                ;
+                const imageUrlExisting = yield prismaClient_1.prismaClient.imageTouristPoint.findUnique({ where: { idTouristPoint, image: imageUrl } });
+                if (!imageUrlExisting) {
+                    return reply.status(400).send({ message: "imagem não existente" });
+                }
+                ;
+                yield prismaClient_1.prismaClient.imageTouristPoint.delete({ where: { idTouristPoint, image: imageUrl } });
+                return reply.status(200).send({ message: "imagem excluida com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.post("/publishOnOff/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idTouristPoint, idUser } = body;
             try {
                 if (!idUser || !idTouristPoint) {
                     return reply.status(400).send({ message: "Algum campo não completado" });
@@ -173,10 +269,36 @@ function RoutesTouristPoints() {
                     return reply.status(400).send({ message: "ID do ponto turistico não existente" });
                 }
                 ;
-                const { reportNumber } = idTouristPointExisting;
-                const reportNum = reportNumber + 1;
-                yield prismaClient_1.prismaClient.ponto_Turistico.update({ where: { id: idTouristPoint }, data: { reportNumber: reportNum } });
-                return reply.status(200).send({ message: "Denunciado com sucesso" });
+                if (idTouristPointExisting.isPublished == true) {
+                    yield prismaClient_1.prismaClient.ponto_Turistico.update({ where: { id: idTouristPoint },
+                        data: {
+                            isPublished: false
+                        }
+                    });
+                    yield prismaClient_1.prismaClient.notificationTouristPoint.delete({ where: { idTouristPoint } });
+                    return reply.status(200).send({ message: "ponto turistico retirado de publicado com sucesso" });
+                }
+                yield prismaClient_1.prismaClient.ponto_Turistico.update({ where: { id: idTouristPoint },
+                    data: {
+                        isPublished: true
+                    }
+                });
+                yield prismaClient_1.prismaClient.notificationTouristPoint.create({
+                    data: {
+                        userNotificationTouristPointByIdClient: { connect: { id: idUser } },
+                        userNotificationTouristPointByIdTouristPoint: { connect: { id: idTouristPoint } }
+                    }
+                });
+                return reply.status(200).send({ message: "ponto turistico publicado com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.get("/get/threeOrMoreReports/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield prismaClient_1.prismaClient.ponto_Turistico.findMany({ where: { reportNumber: { gte: 3 } } });
+                return reply.status(200).send({ response, message: "pontos turisticos com mais de 3 denuncias" });
             }
             catch (error) {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });

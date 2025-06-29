@@ -42,78 +42,75 @@ function RoutesRoadMap() {
             }
         }));
         exeServer_1.default.post("/update/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            const body = request.body;
-            const { title, description, idCommercialPoint, idTouristingPoint, idCreator, id } = body;
+            const body = request.body; // se for adicionar cidade precisa de estado e país, se for adicionar estado, precisa de país
+            const { title, description, idCommercialPoint, idTouristingPoint, idCreator, idRoadMap, country, state, city, userImageUrl } = body;
             try {
-                if (!id || !idCreator) {
-                    return reply.status(500).send({ message: "id do criador ou id do roteiro não encontrado" });
+                if (country) {
+                    const countryAlreadyExist = yield prismaClient_1.prismaClient.country.findUnique({ where: { name: country } });
+                    if (!countryAlreadyExist) {
+                        yield prismaClient_1.prismaClient.country.create({
+                            data: {
+                                name: country
+                            }
+                        });
+                    }
+                }
+                if (state) {
+                    const stateAlreadyExist = yield prismaClient_1.prismaClient.state.findUnique({ where: { name: state } });
+                    if (!stateAlreadyExist) {
+                        yield prismaClient_1.prismaClient.state.create({
+                            data: {
+                                name: state,
+                                CountryByCountryName: { connect: { name: country } }
+                            }
+                        });
+                    }
+                }
+                if (city) {
+                    const cityAlreadyExist = yield prismaClient_1.prismaClient.city.findUnique({ where: { name: city } });
+                    if (!cityAlreadyExist) {
+                        yield prismaClient_1.prismaClient.city.create({
+                            data: {
+                                name: city,
+                                CityByCountryName: { connect: { name: country } },
+                                StateByStateName: { connect: { name: state } }
+                            }
+                        });
+                    }
+                }
+                if (!idRoadMap || !idCreator) {
+                    return reply.status(500).send({ message: "id do criador ou id do roteiro não preenchido" });
                 }
                 ;
-                const travelRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id } });
+                const travelRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
                 if (!travelRoadMapExisting) {
-                    return reply.status(500).send({ message: "roadMap não encontrado" });
-                    ;
+                    return reply.status(500).send({ message: "roadMap não existe" });
                 }
                 ;
-                const idCreatorExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { idCreator, id } });
-                if (!idCreatorExisting) {
-                    return reply.status(500).send({ message: "Erro na consulta do banco de dados referente ao idCreator" });
+                if (idCreator != travelRoadMapExisting.idCreator) {
+                    return reply.status(500).send({ message: "Você não é o dono do RoadMap" });
                 }
                 ;
-                if (!idTouristingPoint && !!idCommercialPoint) {
-                    const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idCommercialPoint } });
-                    if (idCommercialPointExisting === null) {
-                        return reply.status(500).send({ message: "erro na consulta do banco de dados" });
+                yield prismaClient_1.prismaClient.travel_Road_Map.update({
+                    where: { id: idRoadMap, idCreator },
+                    data: {
+                        title,
+                        description,
+                        userImageUrl,
+                        PontosComerciaisRelation: { connect: { id: idCommercialPoint } },
+                        PontosTuristicosRelation: { connect: { id: idTouristingPoint } },
+                        CityRelation: { connect: { name: city } },
+                        StateRelation: { connect: { name: state } },
+                        CountryRelation: { connect: { name: country } }
                     }
-                    const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
-                        where: { id },
-                        data: {
-                            title,
-                            description,
-                            Commercial_Point: { connect: { id: idCommercialPoint } }
-                        }
-                    });
-                    return reply.status(200).send({ response, message: "Atualização bem sucedida" });
-                }
-                ;
-                if (!!idTouristingPoint && !idCommercialPoint) {
-                    const idTouristingPointExisting = yield prismaClient_1.prismaClient.ponto_Turistico.findUnique({ where: { id: idTouristingPoint } });
-                    if (idTouristingPointExisting === null) {
-                        return reply.status(500).send({ message: "erro na consulta do banco de dados" });
-                    }
-                    const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
-                        where: { id },
-                        data: {
-                            title,
-                            description,
-                            Touristing_Point: { connect: { id: idTouristingPoint } }
-                        }
-                    });
-                    return reply.status(200).send({ response, message: "Atualização bem sucedida" });
-                }
-                ;
-                if (!idTouristingPoint && !idCommercialPoint) {
-                    const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idCommercialPoint } });
-                    if (idCommercialPointExisting === null) {
-                        return reply.status(500).send({ message: "erro na consulta do banco de dados" });
-                    }
-                    const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
-                        where: { id },
-                        data: {
-                            title,
-                            description
-                        }
-                    });
-                    return reply.status(200).send({ response, message: "Atualização bem sucedida" });
-                }
-                ;
+                });
                 return reply.status(200).send({ message: "roteiro de viagem atualizado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
-        exeServer_1.default.post("/published/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+        exeServer_1.default.post("/publishOnOff/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCreator, id } = body;
             try {
@@ -132,7 +129,7 @@ function RoutesRoadMap() {
                 }
                 ;
                 const isPublished = travelRoadMapExisting.isPublished;
-                if (!isPublished) {
+                if (isPublished === false) {
                     const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
                         where: { id },
                         data: {
@@ -141,6 +138,13 @@ function RoutesRoadMap() {
                     });
                     return reply.status(200).send({ response, message: "publicado com sucesso" });
                 }
+                const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
+                    where: { id },
+                    data: {
+                        isPublished: false
+                    }
+                });
+                return reply.status(200).send({ response, message: "o roteiro de viagem foi tirado de publicado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
@@ -159,9 +163,8 @@ function RoutesRoadMap() {
                     return reply.status(500).send({ message: "RoadMap não existe" });
                 }
                 ;
-                const idCreatorExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { idCreator, id } });
-                if (!idCreatorExisting) {
-                    return reply.status(500).send({ message: "Erro na consulta do banco de dados referente ao idCreator" });
+                if (idCreator != travelRoadMapExisting.id) {
+                    return reply.status(500).send({ message: "Você não é o dono do roadmap" });
                 }
                 ;
                 const response = yield prismaClient_1.prismaClient.travel_Road_Map.delete({ where: { idCreator, id } });
@@ -197,7 +200,7 @@ function RoutesRoadMap() {
                     const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
                         where: { id, idCreator },
                         data: {
-                            Commercial_Point: { disconnect: [{ id: idPoint }] }
+                            commentRoadMapByRoadMapId: { disconnect: [{ id: idPoint }] }
                         }
                     });
                     return reply.status(200).send({ response, message: "Desconexão feita com sucesso entre o ponto comercial e o roadMap" });
@@ -210,7 +213,7 @@ function RoutesRoadMap() {
                     const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
                         where: { id, idCreator },
                         data: {
-                            Touristing_Point: { disconnect: [{ id: idPoint }] }
+                            PontosTuristicosRelation: { disconnect: [{ id: idPoint }] }
                         }
                     });
                     return reply.status(200).send({ response, message: "Desconexão feita com sucesso entre o ponto turistico e o roadMap" });
@@ -225,10 +228,10 @@ function RoutesRoadMap() {
         }));
         exeServer_1.default.post("/get/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { idCreator, id } = body;
+            const { id } = body;
             try {
-                if (!id || !idCreator) {
-                    return reply.status(500).send({ message: "id do criador ou id do roteiro não encontrado" });
+                if (!id) {
+                    return reply.status(500).send({ message: "id do roteiro não encontrado" });
                 }
                 ;
                 const travelRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id } });
@@ -237,9 +240,6 @@ function RoutesRoadMap() {
                 }
                 ;
                 const response = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id } });
-                if ((response === null || response === void 0 ? void 0 : response.idCreator) != idCreator) {
-                    return reply.status(500).send({ message: "idCreator não é o do roadMap" });
-                }
                 return reply.status(200).send({ response, message: "Road Map pego com sucesso" });
             }
             catch (error) {
@@ -253,6 +253,119 @@ function RoutesRoadMap() {
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.post("/create/image/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idUser, idRoadMap, ImageUrl } = body;
+            try {
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
+                const idRoadMapPointExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idRoadMapPointExisting) {
+                    return reply.status(400).send({ message: "ID do RoadMap não existente" });
+                }
+                ;
+                if (!ImageUrl) {
+                    return reply.status(400).send({ message: "a url não pode ser vazia" });
+                }
+                ;
+                if (idUser != idRoadMapPointExisting.id) {
+                    return reply.status(400).send({ message: "você não é o dono do roadMap" });
+                }
+                ;
+                yield prismaClient_1.prismaClient.imageRoadMap.create({
+                    data: {
+                        image: ImageUrl,
+                        userRoadMapByRoadMapId: { connect: { id: idRoadMap } }
+                    }
+                });
+                return reply.status(200).send({ message: "imagem adicionada com sucesso" });
+            }
+            catch (error) {
+                return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.delete("/delete/image/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idUser, imageUrl, idRoadMap } = body;
+            try {
+                if (!idUser || !idRoadMap || !imageUrl) {
+                    return reply.status(400).send({ message: "Algum campo não completado" });
+                }
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
+                const idRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idRoadMapExisting) {
+                    return reply.status(400).send({ message: "ID do roadMap não existente" });
+                }
+                ;
+                const imageUrlExisting = yield prismaClient_1.prismaClient.imageRoadMap.findUnique({ where: { idRoadMap, image: imageUrl } });
+                if (!imageUrlExisting) {
+                    return reply.status(400).send({ message: "imagem não existente" });
+                }
+                ;
+                yield prismaClient_1.prismaClient.imageRoadMap.delete({ where: { idRoadMap, image: imageUrl } });
+                return reply.status(200).send({ message: "imagem excluida com sucesso" });
+            }
+            catch (error) {
+                return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.post("/get/image/list/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idRoadMap } = body;
+            try {
+                const response = yield prismaClient_1.prismaClient.imageRoadMap.findMany({ where: { idRoadMap } });
+                return reply.status(200).send({ response, message: "Lista de imagens de um certo roadMap" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+            ;
+        }));
+        exeServer_1.default.post("/report/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idUser, idRoadMap, contentReport } = body;
+            try {
+                if (!idUser || !idRoadMap || !contentReport) {
+                    return reply.status(400).send({ message: "Algum campo não completado" });
+                }
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
+                const idRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
+                const reportExisting = yield prismaClient_1.prismaClient.reportRoadMap.findUnique({ where: { idUserReport: idUser, idRoadMap } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idRoadMapExisting) {
+                    return reply.status(400).send({ message: "ID do roadMap não existente" });
+                }
+                ;
+                if (!!reportExisting) {
+                    return reply.status(400).send({ message: "você já denunciou esse roadMap" });
+                }
+                ;
+                const { reportNumber } = idRoadMapExisting;
+                const reportNum = reportNumber + 1;
+                yield prismaClient_1.prismaClient.travel_Road_Map.update({ where: { id: idRoadMap }, data: { reportNumber: reportNum } });
+                yield prismaClient_1.prismaClient.reportRoadMap.create({
+                    data: {
+                        content: contentReport,
+                        userReportRoadMapByIdRoadMap: { connect: { id: idRoadMap } },
+                        userReportRoadMapByIdUserReport: { connect: { id: idUser } }
+                    }
+                });
+                return reply.status(200).send({ message: "Denunciado com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
     });

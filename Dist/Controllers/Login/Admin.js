@@ -112,17 +112,7 @@ function RoutesAdmin() {
                 return reply.status(500).send(error);
             }
         }));
-        exeServer_1.default.delete("/delete/admin/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield prismaClient_1.prismaClient.user_Admin.deleteMany({});
-                console.log("Todos os itens da tabela user_Admin foram deletados."); // Apenas log no terminal
-                return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
-            }
-            catch (error) {
-                console.error("Erro ao excluir registros:", error);
-                return reply.status(500).send({ message: "Erro interno no servidor ", error });
-            }
-        }));
+        //Update Admin 
         exeServer_1.default.post("/update/admin", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword } = body;
@@ -170,6 +160,18 @@ function RoutesAdmin() {
             }
             catch (error) {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
+            }
+        }));
+        // não deve ser mexida
+        exeServer_1.default.delete("/delete/admin/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield prismaClient_1.prismaClient.user_Admin.deleteMany({});
+                console.log("Todos os itens da tabela user_Admin foram deletados."); // Apenas log no terminal
+                return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
+            }
+            catch (error) {
+                console.error("Erro ao excluir registros:", error);
+                return reply.status(500).send({ message: "Erro interno no servidor ", error });
             }
         }));
     });

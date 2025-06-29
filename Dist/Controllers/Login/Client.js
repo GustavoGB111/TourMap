@@ -20,14 +20,10 @@ function RoutesClient() {
         exeServer_1.default.post("/register/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { name, email, password } = body;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             try {
                 const existingUserEmail = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { email } });
                 if (!name || !email) {
                     return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
-                }
-                if (!emailRegex.test(email)) {
-                    return reply.status(400).send({ message: "Formato de email não suportado" });
                 }
                 if (password.length < 8) {
                     return reply.status(400).send({ message: "Senha deve ter pelo menos 8 caracteres" });
@@ -61,7 +57,7 @@ function RoutesClient() {
                 const existingUser = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { email } });
                 if (existingUser) {
                     if (existingUser.email === email && existingUser.name === name && existingUser.password === password) {
-                        return reply.status(200).send(existingUser.id);
+                        return reply.status(200).send(existingUser);
                     }
                     else {
                         return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
@@ -76,8 +72,8 @@ function RoutesClient() {
             }
         }));
         //Get CLIENT
-        exeServer_1.default.get("/get/client/:id", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            const body = request.params;
+        exeServer_1.default.post("/get/client/id", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
             const { id } = body;
             try {
                 const existingUserEmail = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id } });
@@ -111,20 +107,9 @@ function RoutesClient() {
                 return reply.status(500).send(error);
             }
         }));
-        exeServer_1.default.delete("/delete/client/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield prismaClient_1.prismaClient.user_Client.deleteMany({});
-                console.log("Todos os itens da tabela user_Client foram deletados."); // Apenas log no terminal
-                return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
-            }
-            catch (error) {
-                console.error("Erro ao excluir registros:", error);
-                return reply.status(500).send({ message: "Erro interno no servidor", error });
-            }
-        }));
         exeServer_1.default.post("/update/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword } = body;
+            const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword, userImageUrl } = body;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             try {
                 const userExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id } });
@@ -158,7 +143,8 @@ function RoutesClient() {
                         data: {
                             name: newName !== null && newName !== void 0 ? newName : oldName,
                             email: newEmail !== null && newEmail !== void 0 ? newEmail : oldEmail,
-                            password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword
+                            password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword,
+                            userImageUrl
                         }
                     });
                     return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
@@ -166,6 +152,50 @@ function RoutesClient() {
                 else {
                     return reply.status(404).send({ message: "Campos Inválidos" });
                 }
+            }
+            catch (error) {
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
+            }
+        }));
+        // não deve ser usado
+        exeServer_1.default.delete("/delete/client/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield prismaClient_1.prismaClient.user_Client.deleteMany({});
+                console.log("Todos os itens da tabela user_Client foram deletados."); // Apenas log no terminal
+                return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
+            }
+            catch (error) {
+                console.error("Erro ao excluir registros:", error);
+                return reply.status(500).send({ message: "Erro interno no servidor", error });
+            }
+        }));
+        exeServer_1.default.post("/get/list/notificationTouristPoint/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idUser } = body;
+            try {
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
+                if (!idUserExisting) {
+                    return reply.status(500).send({ message: "id não existe no banco de dados" });
+                }
+                ;
+                const response = yield prismaClient_1.prismaClient.notificationTouristPoint.findMany({ where: { idClient: idUser } });
+                return reply.status(200).send({ response, message: "notificações de adição do ponto turistico ao banco de dados" });
+            }
+            catch (error) {
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
+            }
+        }));
+        exeServer_1.default.post("/get/list/notificationRoadMap/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idUser } = body;
+            try {
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
+                if (!idUserExisting) {
+                    return reply.status(500).send({ message: "id não existe no banco de dados" });
+                }
+                ;
+                const response = yield prismaClient_1.prismaClient.notificationRoadMap.findMany({ where: { idClient: idUser } });
+                return reply.status(200).send({ response, message: "notificações de adição do RoadMap ao banco de dados" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
