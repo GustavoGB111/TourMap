@@ -46,7 +46,7 @@ export default async function RoutesBusiness() {
         };
     });
     
-    //Login CLIENT
+    //Login BUSINESS
     server.post("/login/business", async (request, reply) => {
         const body = request.body as {name: string; email: string; password: string; CNPJ: string};
         const {name, email, password, CNPJ} = body;
@@ -74,9 +74,9 @@ export default async function RoutesBusiness() {
     
     });
     
-    //Get CLIENT
-    server.get("/get/business/:id", async (request, reply) => {
-            const body = request.params as {id: string};
+    //Get BUSINESS
+    server.post("/get/business/id", async (request, reply) => {
+            const body = request.body as {id: string};
             const {id} = body
             try {
             const existingUserEmail = await prismaClient.user_Business.findUnique({where: {id}});
@@ -94,7 +94,7 @@ export default async function RoutesBusiness() {
         }
     });
     
-    //Get CLIENT LIST
+    //Get BUSINESS LIST
     server.get("/get/business/list", async (request, reply) => {
         try {
             const clientList = await prismaClient.user_Business.findMany();
@@ -108,21 +108,10 @@ export default async function RoutesBusiness() {
             return reply.status(500).send(error);
         }
     });
-    
-    server.delete("/delete/business/list", async (request, reply) => {
-        try {
-            await prismaClient.user_Business.deleteMany({});
-            console.log("Todos os itens da tabela user_Business foram deletados."); // Apenas log no terminal
-            return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
-        } catch (error) {
-            console.error("Erro ao excluir registros:", error);
-            return reply.status(500).send({ message: "Erro interno no servidor", error });
-        }
-    });
 
     server.post("/update/business", async (request, reply) => {
-        const body = request.body as {id: string, newName?: string, oldPassword: string, newPassword?: string, newTelefone?: string};
-        const {id, newName, oldPassword, newPassword, newTelefone} = body;
+        const body = request.body as {id: string, newName?: string, oldPassword: string, newPassword?: string, newTelefone?: string, userImageUrl?: string};
+        const {id, newName, oldPassword, newPassword, newTelefone, userImageUrl} = body;
 
         try {
             if (!id || !oldPassword) {
@@ -144,7 +133,8 @@ export default async function RoutesBusiness() {
                 data: {
                     name: newName ?? idExisting.name,
                     password: newPassword ?? oldPassword,
-                    telefone: newTelefone ?? idExisting.telefone
+                    telefone: newTelefone ?? idExisting.telefone,
+                    userImageUrl
                 }
             });
 
@@ -154,4 +144,16 @@ export default async function RoutesBusiness() {
             return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
         }
     })
+
+        // não deve ser usado
+    server.delete("/delete/business/list", async (request, reply) => {
+        try {
+            await prismaClient.user_Business.deleteMany({});
+            console.log("Todos os itens da tabela user_Business foram deletados."); // Apenas log no terminal
+            return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
+        } catch (error) {
+            console.error("Erro ao excluir registros:", error);
+            return reply.status(500).send({ message: "Erro interno no servidor", error });
+        }
+    });
 }

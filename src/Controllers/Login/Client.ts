@@ -4,19 +4,15 @@ import { prismaClient } from "../../Database/prismaClient";
 export default async function RoutesClient() {
 
     server.post("/register/client", async (request, reply) => {
-        const body = request.body as {name: string; email: string; password: string};
+        const body = request.body as {name: string; email: string; password: string; };
         const {name, email, password} = body;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
         try {
             const existingUserEmail = await prismaClient.user_Client.findUnique({where: {email}})
-    
+
             if (!name || !email) {
                 return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
-            } 
-            if (!emailRegex.test(email)) {
-                return reply.status(400).send({ message: "Formato de email não suportado" });
-            } 
+            }
             if (password.length < 8) {
                 return reply.status(400).send({ message: "Senha deve ter pelo menos 8 caracteres" });
             } 
@@ -54,7 +50,7 @@ export default async function RoutesClient() {
     
              if (existingUser ) {
                 if (existingUser.email === email && existingUser.name === name && existingUser.password === password){
-                    return reply.status(200).send(existingUser.id);
+                    return reply.status(200).send(existingUser);
                 }   
                 else {
                     return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
@@ -69,8 +65,8 @@ export default async function RoutesClient() {
     });
     
     //Get CLIENT
-    server.get("/get/client/:id", async (request, reply) => {
-            const body = request.params as {id: string};
+    server.post("/get/client/id", async (request, reply) => {
+            const body = request.body as {id: string}
             const {id} = body
             try {
             const existingUserEmail = await prismaClient.user_Client.findUnique({where: {id}});
@@ -102,21 +98,10 @@ export default async function RoutesClient() {
             return reply.status(500).send(error);
         }
     });
-    
-    server.delete("/delete/client/list", async (request, reply) => {
-        try {
-            await prismaClient.user_Client.deleteMany({});
-            console.log("Todos os itens da tabela user_Client foram deletados."); // Apenas log no terminal
-            return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
-        } catch (error) {
-            console.error("Erro ao excluir registros:", error);
-            return reply.status(500).send({ message: "Erro interno no servidor", error });
-        }
-    });
 
     server.post("/update/client", async (request, reply) => {
-        const body = request.body as {id: string, oldName: string, newName?: string, oldEmail:string ,newEmail?: string, oldPassword: string, newPassword?: string};
-        const {id ,oldName, newName, oldEmail, newEmail, oldPassword, newPassword} = body;
+        const body = request.body as {id: string, oldName: string, newName?: string, oldEmail:string ,newEmail?: string, oldPassword: string, newPassword?: string, userImageUrl?: string};
+        const {id ,oldName, newName, oldEmail, newEmail, oldPassword, newPassword, userImageUrl} = body;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
         try {
@@ -155,7 +140,8 @@ export default async function RoutesClient() {
                     data: {
                         name: newName ?? oldName,
                         email: newEmail ?? oldEmail,
-                        password: newPassword ?? oldPassword
+                        password: newPassword ?? oldPassword,
+                        userImageUrl
                     }
                 });
                 return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
@@ -167,4 +153,50 @@ export default async function RoutesClient() {
             return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
         }
     })
+    
+    // não deve ser usado
+    server.delete("/delete/client/list", async (request, reply) => {
+        try {
+            await prismaClient.user_Client.deleteMany({});
+            console.log("Todos os itens da tabela user_Client foram deletados."); // Apenas log no terminal
+            return reply.status(200).send({ message: "Todos os registros foram excluídos com sucesso!" }); // Resposta correta
+        } catch (error) {
+            console.error("Erro ao excluir registros:", error);
+            return reply.status(500).send({ message: "Erro interno no servidor", error });
+        }
+    });
+
+    server.post("/get/list/notificationTouristPoint/client", async (request, reply) => {
+        const body = request.body as {idUser: string}
+        const {idUser} = body
+        try {
+            const idUserExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
+            if (!idUserExisting) {
+                return reply.status(500).send({message: "id não existe no banco de dados"});
+            };
+
+            const response = await prismaClient.notificationTouristPoint.findMany({where: {idClient: idUser}})
+
+            return reply.status(200).send({response, message: "notificações de adição do ponto turistico ao banco de dados" });
+        } catch (error) {
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
+        }
+    });
+
+        server.post("/get/list/notificationRoadMap/client", async (request, reply) => {
+        const body = request.body as {idUser: string}
+        const {idUser} = body
+        try {
+            const idUserExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
+            if (!idUserExisting) {
+                return reply.status(500).send({message: "id não existe no banco de dados"});
+            };
+
+            const response = await prismaClient.notificationRoadMap.findMany({where: {idClient: idUser}})
+
+            return reply.status(200).send({response, message: "notificações de adição do RoadMap ao banco de dados" });
+        } catch (error) {
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
+        }
+    });
 }

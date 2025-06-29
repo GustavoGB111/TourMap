@@ -12,21 +12,50 @@ model User_Admin {
   name String 
   email String @unique 
   password String
+
+  
+  
 }
 
 model User_Client {
-  id       String  @id @default(uuid())
-  name     String
-  email    String  @unique
+  id String  @id @default(uuid())
+  name String
+  email String  @unique
   password String
+  userImageUrl String? @unique @default("")
 
-  commentsByEmail Comment[] @relation("commentsByEmail")
-  commentsById Comment[] @relation("commentsById")
-
-  avaliationsByEmail Avaliation[] @relation("avaliationsByEmail")
-  avaliationsById Avaliation[] @relation("avaliationsById")
+  avaliationsByEmailClient AvaliationRoadMap[] @relation("avaliationsRoadMapByClientEmail")
+  avaliationsRoadMapByIdClient AvaliationRoadMap[] @relation("avaliationsRoadMapByClientId")
 
   travelRoadMaps Travel_Road_Map[]
+
+  avaliationTouristPointByUserClientEmail AvaliationTouristPoint[] @relation("avaliationTouristPointByClientEmail")
+  avaliationTouristPointByIdCreator AvaliationTouristPoint[] @relation("avaliationTouristPointByClientId")
+
+  avaliationCommercialPointByUserClientEmail AvaliationCommercialPoint[] @relation("avaliationCommercialPointByClientEmail")
+  avaliationCommercialPointByIdCreator AvaliationCommercialPoint[] @relation("avaliationCommercialPointByClientId")
+
+  commentRoadMapByClientEmail CommentRoadMap[] @relation("commentRoadMapByClientEmail")
+  commentRoadMapByClientId CommentRoadMap[] @relation("commentRoadMapByClientId")
+
+  commentTouristPointByClientEmail CommentTouristPoint[] @relation("commentTouristPointByClientEmail")
+  commentTouristPointByClientId CommentTouristPoint[] @relation("commentTouristPointByClientId")
+
+  commentCommercialPointByClientEmail CommentCommercialPoint[] @relation("commentCommercialPointByClientEmail")
+  commentCommercialPointByClientId CommentCommercialPoint[] @relation("commentCommercialPointByClientId")
+
+  FavoriteCommercialPointByClientId FavoriteCommercialPoint[] @relation("FavoriteCommercialPointByClientId")
+
+  FavoriteTouristPointPointByClientId FavoriteTouristPoint[] @relation("FavoriteTouristPointByClientId")
+
+  FavoriteRoadMapPointByClientId FavoriteRoadMap[] @relation("FavoriteRoadMapByClientId")
+
+  userNotificationTouristPointByIdClient notificationTouristPoint[] @relation("userNotificationTouristPointByIdClient")
+  userNotificationRoadMapByIdClient notificationRoadMap[] @relation("userNotificationRoadMapByIdClient")
+
+  userReportRoadMapByIdUserReport reportRoadMap[] @relation("userReportRoadMapByIdUserReport")
+  userReportCommercialPointByIdUserReport reportCommercialPoint[] @relation("userReportCommercialPointByIdUserReport")
+  userReportTouristPointByIdUserReport reportTouristPoint[] @relation("userReportTouristPointByIdUserReport")
 }
 
 
@@ -37,6 +66,7 @@ model User_Business {
   email String @unique
   telefone String @unique
   password String
+  userImageUrl String? @unique @default("")
 
   pontosComerciais Ponto_Comercial[]
 }
@@ -47,12 +77,25 @@ model Ponto_Comercial {
   description String
   local String @unique
   creationDate DateTime @db.Date
+  userImageUrl String? @unique @default("")
+
+  reportNumber Int @default(0)
+  isPublished Boolean @default(false)
 
   businessId String
   User_Business User_Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  Travel_Road_Map Travel_Road_Map[]
+  avaliationCommercialPoint AvaliationCommercialPoint[] @relation("avaliationCommercialPointByCommercialPointId")
 
+  commentCommercialPointByCommercialPointId CommentCommercialPoint[] @relation("commentCommercialPointByCommercialPointId")
+
+  FavoriteCommercialPointByCommercialPointId FavoriteCommercialPoint[] @relation("FavoriteCommercialPointByCommercialPointId")
+
+  ImageCommercialPointByCommercialPointId ImageCommercialPoint[] @relation("ImageCommercialPointByCommercialPointId")
+
+  RoadMapRelation Travel_Road_Map[]
+
+  reportCommercialPointByIdCommercialPoint reportCommercialPoint[] @relation("reportCommercialPointByIdCommercialPoint")
 }
 
 
@@ -61,10 +104,25 @@ model Ponto_Turistico {
   name String
   description String
   creationDate DateTime @db.Date
-  reportNumber Int @default(0)
-  local String @unique 
+  local String @unique
+  userImageUrl String? @unique @default("")
 
-  Travel_Road_Map Travel_Road_Map[]
+  reportNumber Int @default(0)
+  isPublished Boolean @default(false)
+
+  avaliationTouristPoint AvaliationTouristPoint[] @relation("avaliationTouristPointByTouristPointId")
+
+  commentTouristPointByTouristPointId CommentTouristPoint[] @relation("commentTouristPointByTouristPointId")
+
+  FavoriteTouristPointByTouristPointId FavoriteTouristPoint[] @relation("FavoriteTouristPointByTouristPointId")
+
+  ImageTouristPointByTouristPointId ImageTouristPoint[] @relation("ImageTouristPointByTouristPointId")
+
+  RoadMapRelation Travel_Road_Map[]
+
+  userReportTouristPointByIdTouristPoint reportTouristPoint[] @relation("userReportTouristPointByIdTouristPoint")
+
+  userNotificationTouristPointByIdTouristPoint notificationTouristPoint[] @relation("userNotificationTouristPointByIdTouristPoint")
 }
 
 model Travel_Road_Map {
@@ -75,41 +133,299 @@ model Travel_Road_Map {
   idCreator String
   avaliationValue Int @default(0)
   isPublished Boolean @default(false)
+  userImageUrl String? @unique @default("")
+  reportNumber Int @default(0)
 
   userClient User_Client @relation( fields: [idCreator], references: [id], onDelete: Cascade)
 
-  Commercial_Point Ponto_Comercial[]
-  Touristing_Point Ponto_Turistico[]
+  AvaliationRoadMap AvaliationRoadMap[] @relation("avaliationsRoadMapByRoadMapId")
 
-  Comments Comment[] 
-  Avaliations Avaliation[] 
-  
+  commentRoadMapByRoadMapId CommentRoadMap[] @relation("commentRoadMapByRoadMapId")
+
+  FavoriteRoadMapByRoadMapId FavoriteRoadMap[] @relation("FavoriteRoadMapByRoadMapId")
+
+  ImageRoadMapByRoadMapId ImageRoadMap[] @relation("ImageRoadMapByRoadMapId")
+
+  PontosTuristicosRelation Ponto_Turistico[] 
+  PontosComerciaisRelation Ponto_Comercial[]
+
+  CountryRelation Country[]
+  StateRelation State[]
+  CityRelation City[]
+
+  userReportRoadMapByIdRoadMap reportRoadMap[] @relation("userReportRoadMapByIdRoadMap")
+  userNotificationRoadMapByIdRoadMap notificationRoadMap[] @relation("userNotificationRoadMapByIdRoadMap")
 }
 
-model Comment {
+model Country {
+  id String @id @default(uuid())
+  name String @unique
+
+  StateByCountryName State[] @relation("StateByCountryName")
+  CityByCountryName City[] @relation("CityByCountryName")
+
+  RoadMapRelation Travel_Road_Map[]
+}
+
+model State {
+  id String @id @default(uuid())
+  name String @unique
+
+  countryName String @unique
+
+  CountryByCountryName Country @relation("StateByCountryName", fields: [countryName], references: [name], onDelete: Cascade)
+
+  StateByStateName City[] @relation("StateByStateName")
+
+  RoadMapRelation Travel_Road_Map[]
+}
+
+model City {
+  id String @id @default(uuid())
+  name String @unique
+
+  countryName String @unique
+  stateName String @unique
+
+  StateByStateName State @relation("StateByStateName", fields: [stateName], references: [name], onDelete: Cascade)
+  CityByCountryName Country @relation("CityByCountryName", fields: [countryName], references: [name], onDelete: Cascade)
+
+  RoadMapRelation Travel_Road_Map[]
+}
+
+
+
+
+
+
+
+
+
+model ImageTouristPoint {
+  id String @id @default(uuid())
+  image String @unique
+
+  idTouristPoint String @unique
+  userTouristPointByTouristPointId Ponto_Turistico @relation("ImageTouristPointByTouristPointId", fields: [idTouristPoint], references: [id], onDelete: Cascade)
+}
+
+model ImageCommercialPoint {
+  id String @id @default(uuid())
+  image String @unique
+
+  idCommercialPoint String @unique
+  userCommercialPointByCommercialPointId Ponto_Comercial @relation("ImageCommercialPointByCommercialPointId", fields: [idCommercialPoint], references: [id], onDelete: Cascade)
+}
+
+model ImageRoadMap {
+  id String @id @default(uuid())
+  image String @unique
+
+  idRoadMap String @unique
+  userRoadMapByRoadMapId Travel_Road_Map @relation("ImageRoadMapByRoadMapId", fields: [idRoadMap], references: [id], onDelete: Cascade)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+model CommentRoadMap {
   id String   @id @default(uuid())
   dataPublication DateTime @db.Date
   content String
 
-  userEmail String
-  idCreator String
-  idTravelRoadMap String
+  userClientEmail String @unique
+  idUserClient String @unique
+  idTravelRoadMap String @unique
 
-  userClientByEmail User_Client @relation("commentsByEmail", fields: [userEmail], references: [email], onDelete: Cascade)
-  userClientById User_Client @relation("commentsById", fields: [idCreator], references: [id], onDelete: Cascade)
-  userClientByTravelRoadMap Travel_Road_Map @relation(fields: [idTravelRoadMap], references: [id], onDelete: Cascade)
+  userClientByClientEmail User_Client @relation("commentRoadMapByClientEmail", fields: [userClientEmail], references: [email], onDelete: Cascade)
+  userClientByClientId User_Client @relation("commentRoadMapByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userRoadMapByRoadMapId Travel_Road_Map @relation("commentRoadMapByRoadMapId", fields: [idTravelRoadMap], references: [id], onDelete: Cascade)
+
+  @@index([idTravelRoadMap, idUserClient])
 }
 
-model Avaliation {
+model CommentTouristPoint {
+  id String @id @default(uuid())
+  dataPublication DateTime @db.Date
+  content String
+
+  userClientEmail String @unique
+  idUserClient String @unique
+  idTouristPoint String @unique
+
+  userClientByClientEmail User_Client @relation("commentTouristPointByClientEmail", fields: [userClientEmail], references: [email], onDelete: Cascade)
+  userClientByClientId User_Client @relation("commentTouristPointByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userTouristPointByTouristPointId Ponto_Turistico @relation("commentTouristPointByTouristPointId", fields: [idTouristPoint], references: [id], onDelete: Cascade)
+
+  @@index([idTouristPoint, idUserClient])
+}
+
+model CommentCommercialPoint {
+  id String @id @default(uuid())
+  dataPublication DateTime @db.Date
+  content String
+
+  userClientEmail String @unique
+  idUserClient String @unique
+  idCommercialPoint String @unique
+
+  userClientByClientEmail User_Client @relation("commentCommercialPointByClientEmail", fields: [userClientEmail], references: [email], onDelete: Cascade)
+  userClientByClientId User_Client @relation("commentCommercialPointByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userCommercialPointByCommercialPointId Ponto_Comercial @relation("commentCommercialPointByCommercialPointId", fields: [idCommercialPoint], references: [id], onDelete: Cascade)
+
+  @@index([idCommercialPoint, idUserClient])
+}
+
+model AvaliationRoadMap {
   id String @id @default(uuid()) 
   dataPublication DateTime @db.Date
   avaliation Int
 
-  userEmail String
-  idCreator String
-  idTravelRoadMap String
+  userClientEmail String
+  idUserClient String @unique
+  idTravelRoadMap String @unique
 
-  userClientByEmail User_Client @relation("avaliationsByEmail", fields: [userEmail], references: [email], onDelete: Cascade)
-  userClientById User_Client @relation("avaliationsById", fields: [idCreator], references: [id], onDelete: Cascade)
-  userClientByTravelRoadMap Travel_Road_Map @relation(fields: [idTravelRoadMap], references: [id], onDelete: Cascade)
+  userClientByEmail User_Client @relation("avaliationsRoadMapByClientEmail", fields: [userClientEmail], references: [email], onDelete: Cascade)
+  userClientByIdClient User_Client @relation("avaliationsRoadMapByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userRoadMapByIdRoadMap Travel_Road_Map @relation("avaliationsRoadMapByRoadMapId",fields: [idTravelRoadMap], references: [id], onDelete: Cascade)
+
+  @@index([idTravelRoadMap, idUserClient])
 }
+
+model AvaliationTouristPoint {
+  id String @id @default(uuid())
+  dataPublication DateTime @db.Date
+  avaliation Int
+
+  userClientEmail String @unique
+  idUserClient String @unique
+  idTouristPoint String @unique
+
+  userClientByEmail User_Client @relation("avaliationTouristPointByClientEmail", fields: [userClientEmail], references: [email], onDelete: Cascade)
+  userClientByIdClient User_Client @relation("avaliationTouristPointByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userTouristPointByIdTouristPoint Ponto_Turistico @relation("avaliationTouristPointByTouristPointId", fields: [idTouristPoint], references: [id], onDelete: Cascade)
+
+  @@index([idTouristPoint, idUserClient])
+}
+
+model AvaliationCommercialPoint {
+  id String @id @default(uuid())
+  dataPublication DateTime @db.Date
+  avaliation Int
+
+  userClientEmail String @unique
+  idUserClient String @unique
+  idCommercialPoint String @unique
+ 
+  userClientByEmailClient User_Client @relation("avaliationCommercialPointByClientEmail", fields: [userClientEmail], references: [email], onDelete: Cascade)
+  userClientByIdClient User_Client @relation("avaliationCommercialPointByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userCommercialPointByIdCommercialPoint Ponto_Comercial @relation("avaliationCommercialPointByCommercialPointId", fields: [idCommercialPoint], references: [id], onDelete: Cascade)
+
+  @@index([idCommercialPoint, idUserClient])
+}
+
+model FavoriteCommercialPoint {
+  id String @id @default(uuid())
+  Favorite Boolean @default(false)
+
+  idUserClient String @unique
+  idCommercialPoint String @unique
+
+  userClientByClientId User_Client @relation("FavoriteCommercialPointByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userCommercialPointByCommercialPointId Ponto_Comercial @relation("FavoriteCommercialPointByCommercialPointId", fields: [idCommercialPoint], references: [id], onDelete: Cascade)
+
+  @@index([idCommercialPoint, idUserClient])
+}
+
+model FavoriteTouristPoint {
+  id String @id @default(uuid())
+  Favorite Boolean @default(false)
+ 
+  idUserClient String @unique
+  idTouristPoint String @unique
+
+  userClientByClientId User_Client @relation("FavoriteTouristPointByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userTouristPointByTouristPointId Ponto_Turistico @relation("FavoriteTouristPointByTouristPointId", fields: [idTouristPoint], references: [id], onDelete: Cascade)
+
+  @@index([idTouristPoint, idUserClient])
+}
+
+model FavoriteRoadMap {
+  id String @id @default(uuid())
+  Favorite Boolean @default(false)
+
+  idUserClient String @unique
+  idRoadMap String @unique
+
+  userClientByClientId User_Client @relation("FavoriteRoadMapByClientId", fields: [idUserClient], references: [id], onDelete: Cascade)
+  userRoadMapPointByRoadMapId Travel_Road_Map @relation("FavoriteRoadMapByRoadMapId", fields: [idRoadMap], references: [id], onDelete: Cascade)
+
+  @@index([idUserClient, idRoadMap])
+}
+
+model reportTouristPoint {
+  id String @id @default(uuid())
+  content String
+  idTouristPoint String @unique
+  idUserReport String @unique
+
+  userReportTouristPointByIdTouristPoint Ponto_Turistico @relation("userReportTouristPointByIdTouristPoint", fields: [idTouristPoint], references: [id], onDelete: Cascade)
+  userReportTouristPointByIdUserReport User_Client @relation("userReportTouristPointByIdUserReport", fields: [idUserReport], references: [id], onDelete: Cascade)
+
+  @@index([idTouristPoint, idUserReport])
+}
+
+model reportCommercialPoint {
+  id String @id @default(uuid())
+  content String
+  idCommercialPoint String @unique
+  idUserReport String @unique
+
+  userReportCommercialPointByIdCommercialPoint Ponto_Comercial @relation("reportCommercialPointByIdCommercialPoint", fields: [idCommercialPoint], references: [id], onDelete: Cascade)
+  userReportCommercialPointByIdUserReport User_Client @relation("userReportCommercialPointByIdUserReport", fields: [idUserReport], references: [id], onDelete: Cascade)
+
+  @@index([idCommercialPoint, idUserReport])
+}
+
+model reportRoadMap {
+  id String @id @default(uuid())
+  content String
+  idRoadMap String @unique
+  idUserReport String @unique
+
+  userReportRoadMapByIdRoadMap Travel_Road_Map @relation("userReportRoadMapByIdRoadMap", fields: [idRoadMap], references: [id], onDelete: Cascade)
+  userReportRoadMapByIdUserReport User_Client @relation("userReportRoadMapByIdUserReport", fields: [idUserReport], references: [id], onDelete: Cascade)
+
+  @@index([idUserReport, idRoadMap])
+}
+
+model notificationRoadMap {
+  id String @id @default(uuid())
+  idClient String @unique
+  idRoadMap String @unique
+
+  userNotificationRoadMapByIdClient User_Client @relation("userNotificationRoadMapByIdClient", fields: [idClient], references: [id], onDelete: Cascade)
+  userNotificationRoadMapByIdRoadMap Travel_Road_Map @relation("userNotificationRoadMapByIdRoadMap", fields: [idRoadMap], references: [id], onDelete: Cascade)
+
+  @@index([idClient, idRoadMap])
+}
+
+model notificationTouristPoint {
+  id String @id @default(uuid())
+  idClient String @unique
+  idTouristPoint String @unique
+
+  userNotificationTouristPointByIdClient User_Client @relation("userNotificationTouristPointByIdClient", fields: [idClient], references: [id], onDelete: Cascade)
+  userNotificationTouristPointByIdTouristPoint Ponto_Turistico @relation("userNotificationTouristPointByIdTouristPoint", fields: [idTouristPoint], references: [id], onDelete: Cascade)
+  
+  @@index([idClient, idTouristPoint])
+  }

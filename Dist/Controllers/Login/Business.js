@@ -19,13 +19,13 @@ function RoutesBusiness() {
     return __awaiter(this, void 0, void 0, function* () {
         exeServer_1.default.post("/register/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { name, email, password, CNPJ } = body;
+            const { name, email, password, CNPJ, telefone } = body;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const CNPJRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
             try {
                 const existingUserEmail = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email } });
-                if (!name || !email) {
-                    return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
+                if (!name || !email || !telefone) {
+                    return reply.status(400).send({ message: "Nome, telefone ou Email não pode ser vazio" });
                 }
                 if (!emailRegex.test(email)) {
                     return reply.status(400).send({ message: "Formato de email não suportado" });
@@ -44,7 +44,8 @@ function RoutesBusiness() {
                         name,
                         email,
                         password,
-                        CNPJ
+                        CNPJ,
+                        telefone
                     }
                 });
                 return reply.status(201).send(response.id);
@@ -129,48 +130,27 @@ function RoutesBusiness() {
         }));
         exeServer_1.default.post("/update/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword } = body;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const { id, newName, oldPassword, newPassword, newTelefone } = body;
             try {
-                const userExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id } });
-                const userExistingEmail = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email: newEmail } });
-                if (!userExisting) {
-                    return reply.status(500).send({ message: "Usuario não existe" });
+                if (!id || !oldPassword) {
+                    return reply.status(500).send({ message: "o campo id ou o campo senha não podem ser vazios" });
                 }
-                const { CNPJ, name, email, password } = userExisting;
-                if (!oldEmail || !oldName || !oldPassword) {
-                    return reply.status(500).send({ message: "Algum dos campo não foi preenchido" });
+                const idExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id } });
+                if (!idExisting) {
+                    return reply.status(500).send({ message: "não existe esse usuario dentro do banco de dados" });
                 }
-                if (newEmail != undefined) {
-                    if (!emailRegex.test(newEmail)) {
-                        return reply.status(500).send({ message: "Novo Email inválido" });
+                if ((idExisting === null || idExisting === void 0 ? void 0 : idExisting.password) != oldPassword) {
+                    return reply.status(500).send({ message: "as senhas não se coincidem" });
+                }
+                const response = yield prismaClient_1.prismaClient.user_Business.update({
+                    where: { id },
+                    data: {
+                        name: newName !== null && newName !== void 0 ? newName : idExisting.name,
+                        password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword,
+                        telefone: newTelefone !== null && newTelefone !== void 0 ? newTelefone : idExisting.telefone
                     }
-                }
-                if (!emailRegex.test(oldEmail)) {
-                    return reply.status(500).send({ message: "Antigo Email inválido" });
-                }
-                if (newPassword != undefined) {
-                    if (newPassword.length < 8) {
-                        return reply.status(500).send({ message: "Senha não pode ter menos que 8 caracteres" });
-                    }
-                }
-                if (userExistingEmail != null) {
-                    return reply.status(500).send({ message: "Email ja cadastrado" });
-                }
-                if (name === oldName && email === oldEmail && password === oldPassword) {
-                    const response = yield prismaClient_1.prismaClient.user_Business.update({
-                        where: { id },
-                        data: {
-                            name: newName !== null && newName !== void 0 ? newName : oldName,
-                            email: newEmail !== null && newEmail !== void 0 ? newEmail : oldEmail,
-                            password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword
-                        }
-                    });
-                    return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
-                }
-                else {
-                    return reply.status(404).send({ message: "Campos Inválidos" });
-                }
+                });
+                return reply.status(200).send({ response, message: "atualizado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
