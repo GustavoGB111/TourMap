@@ -105,46 +105,32 @@ export default async function RoutesAdmin() {
 
 //Update Admin 
     server.post("/update/admin", async (request, reply) => {
-        const body = request.body as {id: string, oldName: string, newName?: string, oldEmail:string ,newEmail?: string, oldPassword: string, newPassword?: string};
-        const {id ,oldName, newName, oldEmail, newEmail, oldPassword, newPassword} = body;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const body = request.body as {id: string, oldName: string, newName?: string, oldPassword: string, newPassword?: string};
+        const {id ,oldName, newName, oldPassword, newPassword} = body;
 
         try {
-            const userExisting = await prismaClient.user_Admin.findUnique({where: {id}}) as {name: string, email: string, password: string};
-            const userExistingEmail = await prismaClient.user_Admin.findUnique({where: {email: newEmail}});
+            const userExisting = await prismaClient.user_Admin.findUnique({where: {id}}) as {name: string, password: string};
 
             if (!userExisting) {
                 return reply.status(500).send({message: "Usuario não existe"});
             }
             
-            const {name, email, password} = userExisting; 
+            const {name, password} = userExisting; 
 
-            if (!oldEmail || !oldName || !oldPassword) {
+            if (!oldName || !oldPassword) {
                 return reply.status(500).send({message: "Algum dos campo não foi preenchido"});
             }
-            if (newEmail != undefined) {
-                if (!emailRegex.test(newEmail)){
-                    return reply.status(500).send({message: "Novo Email inválido"});  
-                }
-            }
-            if (!emailRegex.test(oldEmail))  {
-                return reply.status(500).send({message: "Antigo Email inválido"});
-            }
-            if (newPassword != undefined) {
+            if (!!newPassword) {
                 if (newPassword.length < 8) {
                     return reply.status(500).send({message: "Senha não pode ter menos que 8 caracteres"});  
                 }
-            }   
-            if (userExistingEmail != null) {
-                return reply.status(500).send({message: "Email ja cadastrado"})  
             }
 
-            if (name === oldName && email === oldEmail && password === oldPassword) {
+            if (name === oldName  && password === oldPassword) {
                 const response = await prismaClient.user_Admin.update({
                     where: { id },
                     data: {
                         name: newName ?? oldName,
-                        email: newEmail ?? oldEmail,
                         password: newPassword ?? oldPassword
                     }
                 });
