@@ -48,18 +48,18 @@ export default async function RoutesBusiness() {
     
     //Login BUSINESS
     server.post("/login/business", async (request, reply) => {
-        const body = request.body as {name: string; email: string; password: string; CNPJ: string};
-        const {name, email, password, CNPJ} = body;
+        const body = request.body as {email: string; password: string};
+        const {email, password} = body;
     
         try {
-            if (!name || !email || !password || !CNPJ) {
-                return reply.status(404).send({message: "Email ou Nome ou Senha não preenchidos"})
+            if (!email || !password) {
+                return reply.status(404).send({message: "Email ou Senha não preenchidos"})
             }  
     
             const existingUser = await prismaClient.user_Business.findUnique({where: {email}})
     
              if (existingUser ) {
-                if (existingUser.email === email && existingUser.name === name && existingUser.password === password && existingUser.CNPJ == CNPJ){
+                if (existingUser.email === email && existingUser.password === password){
                     return reply.status(200).send(existingUser.id);
                 }   
                 else {

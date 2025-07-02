@@ -38,18 +38,18 @@ export default async function RoutesClient() {
     
     //Login CLIENT
     server.post("/login/client", async (request, reply) => {
-        const body = request.body as {name: string; email: string; password: string};
-        const {name, email, password} = body;
+        const body = request.body as {email: string; password: string};
+        const {email, password} = body;
     
         try {
-            if (!name || !email || !password) {
-                return reply.status(404).send({message: "Email ou Nome ou Senha não preenchidos"})
+            if (!email || !password) {
+                return reply.status(404).send({message: "Email ou Senha não preenchidos"})
             }  
     
             const existingUser = await prismaClient.user_Client.findUnique({where: {email}})
     
              if (existingUser ) {
-                if (existingUser.email === email && existingUser.name === name && existingUser.password === password){
+                if (existingUser.email === email && existingUser.password === password){
                     return reply.status(200).send(existingUser);
                 }   
                 else {
