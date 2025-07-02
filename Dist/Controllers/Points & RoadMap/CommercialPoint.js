@@ -301,6 +301,7 @@ function RoutesCommercialPoint() {
                 if (idCommercialPointExisting.businessId != idUser) {
                     return reply.status(400).send({ message: "Você não é o dono do ponto comercial" });
                 }
+                ;
                 if (idCommercialPointExisting.isPublished == true) {
                     yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idCommercialPoint },
                         data: {

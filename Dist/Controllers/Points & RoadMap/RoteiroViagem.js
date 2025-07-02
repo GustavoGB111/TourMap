@@ -32,7 +32,7 @@ function RoutesRoadMap() {
                     data: {
                         title,
                         description,
-                        idCreator
+                        userClient: { connect: { id: idCreator } }
                     }
                 });
                 return reply.status(200).send({ response, message: "Roteiro de viagem criado com sucesso" });
@@ -91,11 +91,12 @@ function RoutesRoadMap() {
                     return reply.status(500).send({ message: "Você não é o dono do RoadMap" });
                 }
                 ;
+                const response = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap, idCreator } });
                 yield prismaClient_1.prismaClient.travel_Road_Map.update({
                     where: { id: idRoadMap, idCreator },
                     data: {
-                        title,
-                        description,
+                        title: title !== null && title !== void 0 ? title : response === null || response === void 0 ? void 0 : response.title,
+                        description: description !== null && description !== void 0 ? description : response === null || response === void 0 ? void 0 : response.description,
                         userImageUrl,
                         PontosComerciaisRelation: { connect: { id: idCommercialPoint } },
                         PontosTuristicosRelation: { connect: { id: idTouristingPoint } },
@@ -375,7 +376,7 @@ function RoutesRoadMap() {
                 if (!idUser || !idRoadMap) {
                     return reply.status(400).send({ message: "Algum campo não completado" });
                 }
-                const idUserExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id: idUser } });
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
                 const idtravelMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
                 if (!idUserExisting) {
                     return reply.status(400).send({ message: "ID do usuário não existente" });
@@ -383,6 +384,10 @@ function RoutesRoadMap() {
                 ;
                 if (!idtravelMapExisting) {
                     return reply.status(400).send({ message: "ID do roadMap não existente" });
+                }
+                ;
+                if (idtravelMapExisting.idCreator !== idUser) {
+                    return reply.status(400).send({ message: "Você não é o dono do roadMap" });
                 }
                 ;
                 yield prismaClient_1.prismaClient.travel_Road_Map.update({ where: { id: idRoadMap },

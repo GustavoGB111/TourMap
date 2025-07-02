@@ -23,7 +23,7 @@ export default async function RoutesRoadMap() {
                 data: {
                     title,
                     description,
-                    idCreator
+                    userClient: {connect: {id: idCreator}}
                 }
             });
 
@@ -87,12 +87,14 @@ export default async function RoutesRoadMap() {
             if(idCreator != travelRoadMapExisting.idCreator) {
                 return reply.status(500).send({message:"Você não é o dono do RoadMap"});
             };
+
+                const response = await prismaClient.travel_Road_Map.findUnique({where: {id: idRoadMap, idCreator}});
             
                 await prismaClient.travel_Road_Map.update({
                     where: {id: idRoadMap, idCreator},
                     data: {
-                        title,
-                        description,
+                        title: title ?? response?.title,
+                        description: description ?? response?.description,
                         userImageUrl,
                         PontosComerciaisRelation: {connect: {id: idCommercialPoint}},
                         PontosTuristicosRelation: {connect: {id: idTouristingPoint}},
@@ -413,7 +415,7 @@ export default async function RoutesRoadMap() {
                 return reply.status(400).send({message: "Algum campo não completado"});
             }
 
-            const idUserExisting = await prismaClient.user_Admin.findUnique({where: {id: idUser}});
+            const idUserExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
             const idtravelMapExisting = await prismaClient.travel_Road_Map.findUnique({where: {id: idRoadMap}})
 
             if (!idUserExisting) {
@@ -422,6 +424,9 @@ export default async function RoutesRoadMap() {
             if (!idtravelMapExisting) {
                 return reply.status(400).send({ message: "ID do roadMap não existente" });
             };
+            if (idtravelMapExisting.idCreator !== idUser) {
+                return reply.status(400).send({ message: "Você não é o dono do roadMap" });
+            };
 
             await prismaClient.travel_Road_Map.update({where: {id: idRoadMap},
             data: {
@@ -429,7 +434,7 @@ export default async function RoutesRoadMap() {
             }
             });
             
-            return reply.status(200).send({message: "roadMap publicado com sucesso"})
+            return reply.status(200).send({message: "roadMap publicado com sucesso"});
 
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
