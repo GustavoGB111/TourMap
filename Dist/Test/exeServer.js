@@ -13,7 +13,6 @@ const RoteiroViagem_1 = __importDefault(require("../Controllers/Points & RoadMap
 const Avaliation_1 = __importDefault(require("../Controllers/Interaction/Avaliation"));
 const Comment_1 = __importDefault(require("../Controllers/Interaction/Comment"));
 const Favorite_1 = __importDefault(require("../Controllers/Interaction/Favorite"));
-const SendEmail_1 = __importDefault(require("../Controllers/Interaction/SendEmail"));
 const server = (0, fastify_1.fastify)();
 exports.default = server;
 server.register(Admin_1.default, { prefix: "admin" });
@@ -25,5 +24,4 @@ server.register(RoteiroViagem_1.default, { prefix: "roadMap" });
 server.register(Avaliation_1.default, { prefix: "Avaliation" });
 server.register(Comment_1.default, { prefix: "Comment" });
 server.register(Favorite_1.default, { prefix: "Favorite" });
-server.register(SendEmail_1.default, { prefix: "SendEmail" });
 server.listen({ port: 3333 });

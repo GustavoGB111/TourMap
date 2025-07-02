@@ -36,7 +36,7 @@ export default async function RoutesAvaliation() {
             }
         });
 
-        return reply.status(200).send({message: "avaliação foi criado com sucesso"});
+        return reply.status(201).send({message: "avaliação foi criado com sucesso"});
         } catch (error) {
             return reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
         }
@@ -74,7 +74,7 @@ export default async function RoutesAvaliation() {
             }
         });
 
-        return reply.status(200).send({message: "avaliação foi criado com sucesso"});
+        return reply.status(201).send({message: "avaliação foi criado com sucesso"});
         } catch (error) {
             return reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
         }

@@ -28,7 +28,7 @@ export default async function RoutesClient() {
                 }
             });
     
-            return reply.status(201).send(response.id);
+            return reply.status(201).send({response: response.id, message: "cliente criado com sucesso"});
             
         } catch (error) {
             console.error("Erro ao criar usuário:", error);
@@ -46,18 +46,18 @@ export default async function RoutesClient() {
                 return reply.status(404).send({message: "Email ou Senha não preenchidos"})
             }  
     
-            const existingUser = await prismaClient.user_Client.findUnique({where: {email}})
+            const response = await prismaClient.user_Client.findUnique({where: {email}})
     
-             if (existingUser ) {
-                if (existingUser.email === email && existingUser.password === password){
-                    return reply.status(200).send(existingUser);
-                }   
-                else {
-                    return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
-                }
-            } else {
+            if (!response ) {
                 return reply.status(404).send({message: "Usuario não cadastrado"});
-            }
+            };
+            
+            if (response.email !== email || response.password !== password){
+                return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
+            };
+
+            return reply.status(200).send({response: response.id, message: "id retornado com sucesso"});
+
         } catch (error) {
             return reply.status(500).send({error});            
         }
@@ -66,18 +66,20 @@ export default async function RoutesClient() {
     
     //Get CLIENT
     server.post("/get/client/id", async (request, reply) => {
-            const body = request.body as {id: string}
-            const {id} = body
-            try {
-            const existingUserEmail = await prismaClient.user_Client.findUnique({where: {id}});
+        const body = request.body as {id: string}
+        const {id} = body
+        try {
             if (!id) {
                 return reply.status(404).send({message: "ID não preenchido"});
             }
-            if (existingUserEmail) {
-                return reply.status(200).send(existingUserEmail);
-            } else {
+
+            const response = await prismaClient.user_Client.findUnique({where: {id}});
+            
+            if (!response) {
                 return reply.status(404).send({message: "Usuario não encontrado"});
             };
+
+            return reply.status(200).send({response, message: "o usuario cliente"});
             
         } catch (error) {
             return reply.status(500).send(error);
@@ -87,12 +89,13 @@ export default async function RoutesClient() {
     //Get CLIENT LIST
     server.get("/get/client/list", async (request, reply) => {
         try {
-            const clientList = await prismaClient.user_Client.findMany();
-            if (clientList) {
-                return reply.status(200).send(clientList);
-            } else {
-                return reply.status(404).send({message: "Cliente List não encontrado"})
-            }
+            const response = await prismaClient.user_Client.findMany();
+
+            if (!response) {
+               return reply.status(404).send({message: "Cliente List não encontrado"})
+            };
+
+            return reply.status(200).send({response, message: "lista de clientes"});
             
         } catch (error) {
             return reply.status(500).send(error);
@@ -116,19 +119,20 @@ export default async function RoutesClient() {
                 return reply.status(500).send({message: "Algum dos campo não foi preenchido"});
             }
     
-            if (name === oldName && password === oldPassword) {
-                const response = await prismaClient.user_Client.update({
-                    where: { id },
-                    data: {
-                        name: newName ?? oldName,
-                        password: newPassword ?? oldPassword,
-                        userImageUrl
-                    }
-                });
-                return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
-            } else {
-                return reply.status(404).send({ message: "Campos Inválidos"});
-            }
+            if (name !== oldName && password !== oldPassword) {
+                return reply.status(404).send({message: "Campos Inválidos"});
+            };
+
+            const response = await prismaClient.user_Client.update({
+                where: { id },
+                data: {
+                    name: newName ?? oldName,
+                    password: newPassword ?? oldPassword,
+                    userImageUrl
+                }
+            });
+
+            return reply.status(200).send({response, message: "Atualizado com sucesso"});
     
         } catch (error) {
             return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    

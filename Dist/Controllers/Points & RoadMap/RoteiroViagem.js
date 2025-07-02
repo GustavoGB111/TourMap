@@ -128,7 +128,7 @@ function RoutesRoadMap() {
                     return reply.status(500).send({ message: "Erro na consulta do banco de dados referente ao idCreator" });
                 }
                 ;
-                const isPublished = travelRoadMapExisting.isPublished;
+                const { isPublished } = travelRoadMapExisting;
                 if (isPublished === false) {
                     const response = yield prismaClient_1.prismaClient.travel_Road_Map.update({
                         where: { id },
@@ -283,7 +283,7 @@ function RoutesRoadMap() {
                         userRoadMapByRoadMapId: { connect: { id: idRoadMap } }
                     }
                 });
-                return reply.status(200).send({ message: "imagem adicionada com sucesso" });
+                return reply.status(201).send({ message: "imagem adicionada com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });

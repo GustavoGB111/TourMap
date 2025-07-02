@@ -130,7 +130,7 @@ export default async function RoutesRoadMap() {
                 return reply.status(500).send({message:"Erro na consulta do banco de dados referente ao idCreator"});
             };
 
-            const isPublished = travelRoadMapExisting.isPublished
+            const {isPublished} = travelRoadMapExisting;
 
             if(isPublished === false) {
                 const response = await prismaClient.travel_Road_Map.update({
@@ -139,7 +139,7 @@ export default async function RoutesRoadMap() {
                         isPublished: true
                     }
                 });
-                return reply.status(200).send({response ,message:"publicado com sucesso"})
+                return reply.status(200).send({response ,message:"publicado com sucesso"});
             }
 
             const response = await prismaClient.travel_Road_Map.update({
@@ -161,7 +161,7 @@ export default async function RoutesRoadMap() {
 
         try {
             if (!id || !idCreator) {
-                return reply.status(500).send({message: "id do criador ou id do roteiro não encontrado"})
+                return reply.status(500).send({message: "id do criador ou id do roteiro não encontrado"});
             };
         
             const travelRoadMapExisting = await prismaClient.travel_Road_Map.findUnique({where: {id}});
@@ -174,9 +174,9 @@ export default async function RoutesRoadMap() {
                 return reply.status(500).send({message:"Você não é o dono do roadmap"});
             };
 
-            const response = await prismaClient.travel_Road_Map.delete({where: {idCreator, id}})
+            const response = await prismaClient.travel_Road_Map.delete({where: {idCreator, id}});
 
-            return reply.status(200).send({response, message:"Road Map deletado com sucesso"})
+            return reply.status(200).send({response, message:"Road Map deletado com sucesso"});
         } catch (error) {
             return reply.status(500).send({message:"erro interno no servidor ou requisição ao banco de dados falha", error});
         }
@@ -309,7 +309,7 @@ export default async function RoutesRoadMap() {
                 }
             });
 
-            return reply.status(200).send({message: "imagem adicionada com sucesso"});
+            return reply.status(201).send({message: "imagem adicionada com sucesso"});
 
         } catch (error) {
             return reply.status(500).send({message:"erro interno no servidor ou requisição ao banco de dados falha", error});

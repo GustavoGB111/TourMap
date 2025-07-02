@@ -38,7 +38,7 @@ function RoutesClient() {
                         password
                     }
                 });
-                return reply.status(201).send(response.id);
+                return reply.status(201).send({ response: response.id, message: "cliente criado com sucesso" });
             }
             catch (error) {
                 console.error("Erro ao criar usuário:", error);
@@ -54,18 +54,16 @@ function RoutesClient() {
                 if (!email || !password) {
                     return reply.status(404).send({ message: "Email ou Senha não preenchidos" });
                 }
-                const existingUser = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { email } });
-                if (existingUser) {
-                    if (existingUser.email === email && existingUser.password === password) {
-                        return reply.status(200).send(existingUser);
-                    }
-                    else {
-                        return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
-                    }
-                }
-                else {
+                const response = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { email } });
+                if (!response) {
                     return reply.status(404).send({ message: "Usuario não cadastrado" });
                 }
+                ;
+                if (response.email !== email || response.password !== password) {
+                    return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
+                }
+                ;
+                return reply.status(200).send({ response: response.id, message: "id retornado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ error });
@@ -76,17 +74,15 @@ function RoutesClient() {
             const body = request.body;
             const { id } = body;
             try {
-                const existingUserEmail = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id } });
                 if (!id) {
                     return reply.status(404).send({ message: "ID não preenchido" });
                 }
-                if (existingUserEmail) {
-                    return reply.status(200).send(existingUserEmail);
-                }
-                else {
+                const response = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id } });
+                if (!response) {
                     return reply.status(404).send({ message: "Usuario não encontrado" });
                 }
                 ;
+                return reply.status(200).send({ response, message: "o usuario cliente" });
             }
             catch (error) {
                 return reply.status(500).send(error);
@@ -95,13 +91,12 @@ function RoutesClient() {
         //Get CLIENT LIST
         exeServer_1.default.get("/get/client/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const clientList = yield prismaClient_1.prismaClient.user_Client.findMany();
-                if (clientList) {
-                    return reply.status(200).send(clientList);
-                }
-                else {
+                const response = yield prismaClient_1.prismaClient.user_Client.findMany();
+                if (!response) {
                     return reply.status(404).send({ message: "Cliente List não encontrado" });
                 }
+                ;
+                return reply.status(200).send({ response, message: "lista de clientes" });
             }
             catch (error) {
                 return reply.status(500).send(error);
@@ -119,20 +114,19 @@ function RoutesClient() {
                 if (!oldName || !oldPassword) {
                     return reply.status(500).send({ message: "Algum dos campo não foi preenchido" });
                 }
-                if (name === oldName && password === oldPassword) {
-                    const response = yield prismaClient_1.prismaClient.user_Client.update({
-                        where: { id },
-                        data: {
-                            name: newName !== null && newName !== void 0 ? newName : oldName,
-                            password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword,
-                            userImageUrl
-                        }
-                    });
-                    return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
-                }
-                else {
+                if (name !== oldName && password !== oldPassword) {
                     return reply.status(404).send({ message: "Campos Inválidos" });
                 }
+                ;
+                const response = yield prismaClient_1.prismaClient.user_Client.update({
+                    where: { id },
+                    data: {
+                        name: newName !== null && newName !== void 0 ? newName : oldName,
+                        password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword,
+                        userImageUrl
+                    }
+                });
+                return reply.status(200).send({ response, message: "Atualizado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });

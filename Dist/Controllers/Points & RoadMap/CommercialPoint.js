@@ -47,7 +47,7 @@ function RoutesCommercialPoint() {
                         }
                     }
                 });
-                return reply.status(201).send({ response, message: "ponto turistico criado com sucesso" });
+                return reply.status(201).send({ response: response.id, message: "ponto turistico criado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
@@ -115,10 +115,10 @@ function RoutesCommercialPoint() {
                 }
                 const { businessId } = idPointExisting;
                 if (businessId != idBusiness) {
-                    return reply.status(400).send({ message: "Você não é a empresa responsavel pelo ponto turistico..." });
+                    return reply.status(400).send({ message: "Você não é a empresa responsavel pelo ponto comercial..." });
                 }
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idPoint } });
-                reply.status(200).send({ response, message: "dados do ponto comercial" });
+                reply.status(200).send({ response: response === null || response === void 0 ? void 0 : response.id, message: "dados do ponto comercial" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
@@ -232,7 +232,7 @@ function RoutesCommercialPoint() {
                         userCommercialPointByCommercialPointId: { connect: { id: idCommercialPoint } }
                     }
                 });
-                return reply.status(200).send({ message: "imagem adicionada com sucesso" });
+                return reply.status(201).send({ message: "imagem adicionada com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });

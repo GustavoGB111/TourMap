@@ -44,7 +44,7 @@ function RoutesComment() {
                         userTouristPointByTouristPointId: { connect: { id: idTouristPoint } }
                     }
                 });
-                return reply.status(200).send({ message: "Comentario publicado com sucesso" });
+                return reply.status(201).send({ message: "Comentario publicado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
@@ -77,7 +77,7 @@ function RoutesComment() {
                         userCommercialPointByCommercialPointId: { connect: { id: idCommercialPoint } }
                     }
                 });
-                return reply.status(200).send({ message: "Comentario publicado com sucesso" });
+                return reply.status(201).send({ message: "Comentario publicado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
@@ -110,7 +110,7 @@ function RoutesComment() {
                         userRoadMapByRoadMapId: { connect: { id: idRoadMap } }
                     }
                 });
-                return reply.status(200).send({ message: "Comentario publicado com sucesso" });
+                return reply.status(201).send({ message: "Comentario publicado com sucesso" });
             }
             catch (error) {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });

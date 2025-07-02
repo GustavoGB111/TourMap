@@ -11,7 +11,6 @@ import RoutesRoadMap from '../Controllers/Points & RoadMap/RoteiroViagem';
 import RoutesAvaliation from '../Controllers/Interaction/Avaliation';
 import RoutesComment from '../Controllers/Interaction/Comment';
 import RoutesFavorite from '../Controllers/Interaction/Favorite';
-import RoutesSendEmail from '../Controllers/Interaction/SendEmail';
 
 const server = fastify();
 
@@ -28,6 +27,5 @@ server.register(RoutesRoadMap, {prefix: "roadMap"});
 server.register(RoutesAvaliation, {prefix: "Avaliation"});
 server.register(RoutesComment, {prefix: "Comment"});
 server.register(RoutesFavorite, {prefix: "Favorite"});
-server.register(RoutesSendEmail, {prefix: "SendEmail"});
 
 server.listen({port: 3333});

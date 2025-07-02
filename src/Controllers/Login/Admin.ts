@@ -33,11 +33,11 @@ export default async function RoutesAdmin() {
             }
         });
 
-        return reply.status(201).send(response.id);
+        return reply.status(201).send({id: response.id, message: "admin registrado com sucesso"});
         
     } catch (error) {
         console.error("Erro ao criar usuário:", error);
-        return reply.status(500).send({ message: "Erro interno do servidor" });
+         return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});
     };
 });
 
@@ -48,43 +48,45 @@ export default async function RoutesAdmin() {
 
         try {
             if (!email || !password) {
-                return reply.status(404).send({message: "Email ou Senha não preenchidos"})
-            }  
+                return reply.status(404).send({message: "Email ou Senha não preenchidos"});
+            }; 
 
-            const existingUser = await prismaClient.user_Admin.findUnique({where: {email}})
+            const existingUser = await prismaClient.user_Admin.findUnique({where: {email}});
 
-            if (existingUser) {
-                if (existingUser.email === email && existingUser.password === password){
-                    return reply.status(200).send(existingUser.id);
-                }   
-                else {
-                    return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
-                }
-            } else {
+            if (!existingUser) {
                 return reply.status(404).send({message: "Usuario não cadastrado"});
-            }
+            };
+
+            if (existingUser.email !== email && existingUser.password !== password){
+                return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
+            };
+
+            return reply.status(200).send({id: existingUser.id, message: "admin logado com sucesso"});
+        
         } catch (error) {
-            return reply.status(500).send({error});            
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});           
         }
     });
 
 //Get ADMIN
-    server.get("/get/admin/:id", async (request, reply) => {
-            const body = request.params as {id: string};
+    server.post("/get/admin/id", async (request, reply) => {
+            const body = request.body as {id: string};
             const {id} = body
             try {
-            const existingUserEmail = await prismaClient.user_Admin.findUnique({where: {id}});
             if (!id) {
                 return reply.status(404).send({message: "ID não preenchido"});
-            }
-            if (existingUserEmail) {
-                return reply.status(200).send(existingUserEmail);
-            } else {
+            };
+
+            const response = await prismaClient.user_Admin.findUnique({where: {id}});
+
+            if (!response) {
                 return reply.status(404).send({message: "Usuario não encontrado"});
             };
+
+            return reply.status(200).send({response: response, message: "usuario admin"});
             
         } catch (error) {
-            return reply.status(500).send(error);
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});    
         }
     });
 
@@ -98,7 +100,7 @@ export default async function RoutesAdmin() {
                 return reply.status(404).send({message: "Admin List não encontrado"})
             }
         } catch (error) {
-            return reply.status(500).send(error);
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});  
         }
     });
 
@@ -133,13 +135,13 @@ export default async function RoutesAdmin() {
                         password: newPassword ?? oldPassword
                     }
                 });
-                return reply.status(200).send({ message: "Atualizado com sucesso", data: response });
+                return reply.status(200).send({response, message: "Atualizado com sucesso"});
             } else {
                 return reply.status(404).send({ message: "Campos Inválidos"});
             }
 
         } catch (error) {
-            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});   
         }
     })
 

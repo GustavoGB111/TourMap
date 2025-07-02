@@ -38,11 +38,11 @@ export default async function RoutesBusiness() {
                 }
             });
     
-            return reply.status(201).send(response.id);
+            return reply.status(201).send({response: response.id, message: "criado com sucesso"});
             
         } catch (error) {
             console.error("Erro ao criar usuário:", error);
-            return reply.status(500).send({ message: "Erro interno do servidor" });
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});       
         };
     });
     
@@ -56,56 +56,57 @@ export default async function RoutesBusiness() {
                 return reply.status(404).send({message: "Email ou Senha não preenchidos"})
             }  
     
-            const existingUser = await prismaClient.user_Business.findUnique({where: {email}})
+            const response = await prismaClient.user_Business.findUnique({where: {email}})
     
-             if (existingUser ) {
-                if (existingUser.email === email && existingUser.password === password){
-                    return reply.status(200).send(existingUser.id);
-                }   
-                else {
-                    return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
-                }
-            } else {
+            if (!response) {
                 return reply.status(404).send({message: "Usuario não cadastrado"});
-            }
+            };
+            if (response.email !== email && response.password !== password){
+                return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
+            };
+
+            return reply.status(200).send({response: response.id, message: "id retornado com sucesso"});
+
         } catch (error) {
-            return reply.status(500).send({error});            
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});                   
         }
     
     });
     
     //Get BUSINESS
     server.post("/get/business/id", async (request, reply) => {
-            const body = request.body as {id: string};
-            const {id} = body
-            try {
-            const existingUserEmail = await prismaClient.user_Business.findUnique({where: {id}});
+        const body = request.body as {id: string};
+        const {id} = body
+        try {
             if (!id) {
                 return reply.status(404).send({message: "ID não preenchido"});
-            }
-            if (existingUserEmail) {
-                return reply.status(200).send(existingUserEmail);
-            } else {
+            };
+
+            const response = await prismaClient.user_Business.findUnique({where: {id}});
+
+            if (!response) {
                 return reply.status(404).send({message: "Usuario não encontrado"});
             };
+
+            return reply.status(200).send({response, message: "usuario business retornado"});
             
         } catch (error) {
-            return reply.status(500).send(error);
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});       
         }
     });
     
     //Get BUSINESS LIST
     server.get("/get/business/list", async (request, reply) => {
         try {
-            const clientList = await prismaClient.user_Business.findMany();
-            if (clientList) {
-                return reply.status(200).send(clientList);
-            } else {
+            const response = await prismaClient.user_Business.findMany();
+            if (!response) {
                 return reply.status(404).send({message: "Empresa List não encontrado"})
             }
+
+            return reply.status(200).send({response, message: "lista de business"});
             
         } catch (error) {
-            return reply.status(500).send(error);
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});        
         }
     });
 
@@ -122,11 +123,11 @@ export default async function RoutesBusiness() {
 
             if(!idExisting) {
                 return reply.status(500).send({message: "não existe esse usuario dentro do banco de dados"});
-            }
+            };
 
-            if(idExisting?.password != oldPassword) {
+            if(idExisting.password != oldPassword) {
                 return reply.status(500).send({message: "as senhas não se coincidem"});
-            }
+            };
 
             const response = await prismaClient.user_Business.update({
                 where: {id},
@@ -141,7 +142,7 @@ export default async function RoutesBusiness() {
             return reply.status(200).send({response, message:"atualizado com sucesso"})
     
         } catch (error) {
-            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
+            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error});    
         }
     })
 

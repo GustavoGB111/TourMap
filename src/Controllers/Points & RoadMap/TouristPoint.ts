@@ -18,14 +18,15 @@ export default async function RoutesTouristPoints() {
             };
 
             const localExistingOnDatabase = await prismaClient.ponto_Turistico.findUnique({where: {local}});
-            const idAdmin = await prismaClient.user_Admin.findUnique({where: {id}});
+            const idClientExisting = await prismaClient.user_Client.findUnique({where: {id}});
 
             if (!!localExistingOnDatabase) {
-                return reply.status(500).send({message: "local já existente..."});
+                return reply.status(500).send({message: "local já existente no banco de dados..."});
             };
-            if (!idAdmin) {
-                return reply.status(400).send({message: "Você não é admin para adicionar um ponto turistico"})
-            } 
+            if(!idClientExisting) {
+                return reply.status(500).send({message: "o cliente não existe no banco de dados..."});
+            }
+
             const response = await prismaClient.ponto_Turistico.create({
                 data: {
                     name,
@@ -34,7 +35,7 @@ export default async function RoutesTouristPoints() {
                     creationDate
                 }
             });
-            return reply.status(201).send({response ,message: "Ponto turistico adicionado"})
+            return reply.status(201).send({response: response.id ,message: "Ponto turistico adicionado"})
             
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha"});
@@ -103,7 +104,8 @@ export default async function RoutesTouristPoints() {
             }
             
             const response = await prismaClient.ponto_Turistico.findUnique({where: {id: idTouristPoint}});
-            reply.status(200).send({response})
+
+            reply.status(200).send({response, message: "id do ponto turistico retornado"})
 
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
@@ -180,7 +182,7 @@ export default async function RoutesTouristPoints() {
                     userReportTouristPointByIdUserReport:{connect: {id: idUser}}
                 }
             })
-            return reply.status(200).send({ message: "Denunciado com sucesso"});
+            return reply.status(200).send({ message:"Denunciado com sucesso"});
 
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
@@ -212,7 +214,7 @@ export default async function RoutesTouristPoints() {
                 }
             });
 
-            return reply.status(200).send({message: "imagem adicionada com sucesso"});
+            return reply.status(201).send({message: "imagem adicionada com sucesso"});
 
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});

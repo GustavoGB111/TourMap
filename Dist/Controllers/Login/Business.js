@@ -48,11 +48,11 @@ function RoutesBusiness() {
                         telefone
                     }
                 });
-                return reply.status(201).send(response.id);
+                return reply.status(201).send({ response: response.id, message: "criado com sucesso" });
             }
             catch (error) {
                 console.error("Erro ao criar usuário:", error);
-                return reply.status(500).send({ message: "Erro interno do servidor" });
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
             ;
         }));
@@ -64,21 +64,19 @@ function RoutesBusiness() {
                 if (!email || !password) {
                     return reply.status(404).send({ message: "Email ou Senha não preenchidos" });
                 }
-                const existingUser = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email } });
-                if (existingUser) {
-                    if (existingUser.email === email && existingUser.password === password) {
-                        return reply.status(200).send(existingUser.id);
-                    }
-                    else {
-                        return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
-                    }
-                }
-                else {
+                const response = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email } });
+                if (!response) {
                     return reply.status(404).send({ message: "Usuario não cadastrado" });
                 }
+                ;
+                if (response.email !== email && response.password !== password) {
+                    return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
+                }
+                ;
+                return reply.status(200).send({ response: response.id, message: "id retornado com sucesso" });
             }
             catch (error) {
-                return reply.status(500).send({ error });
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
         //Get BUSINESS
@@ -86,35 +84,32 @@ function RoutesBusiness() {
             const body = request.body;
             const { id } = body;
             try {
-                const existingUserEmail = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id } });
                 if (!id) {
                     return reply.status(404).send({ message: "ID não preenchido" });
                 }
-                if (existingUserEmail) {
-                    return reply.status(200).send(existingUserEmail);
-                }
-                else {
+                ;
+                const response = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id } });
+                if (!response) {
                     return reply.status(404).send({ message: "Usuario não encontrado" });
                 }
                 ;
+                return reply.status(200).send({ response, message: "usuario business retornado" });
             }
             catch (error) {
-                return reply.status(500).send(error);
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
         //Get BUSINESS LIST
         exeServer_1.default.get("/get/business/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const clientList = yield prismaClient_1.prismaClient.user_Business.findMany();
-                if (clientList) {
-                    return reply.status(200).send(clientList);
-                }
-                else {
+                const response = yield prismaClient_1.prismaClient.user_Business.findMany();
+                if (!response) {
                     return reply.status(404).send({ message: "Empresa List não encontrado" });
                 }
+                return reply.status(200).send({ response, message: "lista de business" });
             }
             catch (error) {
-                return reply.status(500).send(error);
+                return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
         exeServer_1.default.post("/update/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
@@ -128,9 +123,11 @@ function RoutesBusiness() {
                 if (!idExisting) {
                     return reply.status(500).send({ message: "não existe esse usuario dentro do banco de dados" });
                 }
-                if ((idExisting === null || idExisting === void 0 ? void 0 : idExisting.password) != oldPassword) {
+                ;
+                if (idExisting.password != oldPassword) {
                     return reply.status(500).send({ message: "as senhas não se coincidem" });
                 }
+                ;
                 const response = yield prismaClient_1.prismaClient.user_Business.update({
                     where: { id },
                     data: {
