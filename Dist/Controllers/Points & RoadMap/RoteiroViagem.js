@@ -368,5 +368,33 @@ function RoutesRoadMap() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        exeServer_1.default.post("/publishOn/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idRoadMap, idUser } = body;
+            try {
+                if (!idUser || !idRoadMap) {
+                    return reply.status(400).send({ message: "Algum campo não completado" });
+                }
+                const idUserExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id: idUser } });
+                const idtravelMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
+                if (!idUserExisting) {
+                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                }
+                ;
+                if (!idtravelMapExisting) {
+                    return reply.status(400).send({ message: "ID do roadMap não existente" });
+                }
+                ;
+                yield prismaClient_1.prismaClient.travel_Road_Map.update({ where: { id: idRoadMap },
+                    data: {
+                        isPublished: true
+                    }
+                });
+                return reply.status(200).send({ message: "roadMap publicado com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
     });
 }
