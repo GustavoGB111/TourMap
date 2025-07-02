@@ -59,14 +59,14 @@ function RoutesBusiness() {
         //Login BUSINESS
         exeServer_1.default.post("/login/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { name, email, password, CNPJ } = body;
+            const { email, password } = body;
             try {
-                if (!name || !email || !password || !CNPJ) {
-                    return reply.status(404).send({ message: "Email ou Nome ou Senha não preenchidos" });
+                if (!email || !password) {
+                    return reply.status(404).send({ message: "Email ou Senha não preenchidos" });
                 }
                 const existingUser = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email } });
                 if (existingUser) {
-                    if (existingUser.email === email && existingUser.name === name && existingUser.password === password && existingUser.CNPJ == CNPJ) {
+                    if (existingUser.email === email && existingUser.password === password) {
                         return reply.status(200).send(existingUser.id);
                     }
                     else {

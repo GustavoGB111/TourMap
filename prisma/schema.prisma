@@ -192,13 +192,6 @@ model City {
 }
 
 
-
-
-
-
-
-
-
 model ImageTouristPoint {
   id String @id @default(uuid())
   image String @unique

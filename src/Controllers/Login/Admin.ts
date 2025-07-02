@@ -97,7 +97,6 @@ export default async function RoutesAdmin() {
             } else {
                 return reply.status(404).send({message: "Admin List não encontrado"})
             }
-            
         } catch (error) {
             return reply.status(500).send(error);
         }

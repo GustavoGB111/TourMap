@@ -163,21 +163,4 @@ export default async function RoutesClient() {
             return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
         }
     });
-
-        server.post("/get/list/notificationRoadMap/client", async (request, reply) => {
-        const body = request.body as {idUser: string}
-        const {idUser} = body
-        try {
-            const idUserExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
-            if (!idUserExisting) {
-                return reply.status(500).send({message: "id não existe no banco de dados"});
-            };
-
-            const response = await prismaClient.notificationRoadMap.findMany({where: {idClient: idUser}})
-
-            return reply.status(200).send({response, message: "notificações de adição do RoadMap ao banco de dados" });
-        } catch (error) {
-            return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
-        }
-    });
 }

@@ -397,8 +397,6 @@ export default async function RoutesRoadMap() {
                 }
             });
 
-
-
             return reply.status(200).send({ message: "Denunciado com sucesso"});
 
         } catch (error) {

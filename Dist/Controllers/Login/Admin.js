@@ -54,14 +54,14 @@ function RoutesAdmin() {
         //Login ADMIN
         exeServer_1.default.post("/login/admin", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { name, email, password } = body;
+            const { email, password } = body;
             try {
-                if (!name || !email || !password) {
-                    return reply.status(404).send({ message: "Email ou Nome ou Senha não preenchidos" });
+                if (!email || !password) {
+                    return reply.status(404).send({ message: "Email ou Senha não preenchidos" });
                 }
                 const existingUser = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { email } });
                 if (existingUser) {
-                    if (existingUser.email === email && existingUser.name === name && existingUser.password === password) {
+                    if (existingUser.email === email && existingUser.password === password) {
                         return reply.status(200).send(existingUser.id);
                     }
                     else {
@@ -115,40 +115,26 @@ function RoutesAdmin() {
         //Update Admin 
         exeServer_1.default.post("/update/admin", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { id, oldName, newName, oldEmail, newEmail, oldPassword, newPassword } = body;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const { id, oldName, newName, oldPassword, newPassword } = body;
             try {
                 const userExisting = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { id } });
-                const userExistingEmail = yield prismaClient_1.prismaClient.user_Admin.findUnique({ where: { email: newEmail } });
                 if (!userExisting) {
                     return reply.status(500).send({ message: "Usuario não existe" });
                 }
-                const { name, email, password } = userExisting;
-                if (!oldEmail || !oldName || !oldPassword) {
+                const { name, password } = userExisting;
+                if (!oldName || !oldPassword) {
                     return reply.status(500).send({ message: "Algum dos campo não foi preenchido" });
                 }
-                if (newEmail != undefined) {
-                    if (!emailRegex.test(newEmail)) {
-                        return reply.status(500).send({ message: "Novo Email inválido" });
-                    }
-                }
-                if (!emailRegex.test(oldEmail)) {
-                    return reply.status(500).send({ message: "Antigo Email inválido" });
-                }
-                if (newPassword != undefined) {
+                if (!!newPassword) {
                     if (newPassword.length < 8) {
                         return reply.status(500).send({ message: "Senha não pode ter menos que 8 caracteres" });
                     }
                 }
-                if (userExistingEmail != null) {
-                    return reply.status(500).send({ message: "Email ja cadastrado" });
-                }
-                if (name === oldName && email === oldEmail && password === oldPassword) {
+                if (name === oldName && password === oldPassword) {
                     const response = yield prismaClient_1.prismaClient.user_Admin.update({
                         where: { id },
                         data: {
                             name: newName !== null && newName !== void 0 ? newName : oldName,
-                            email: newEmail !== null && newEmail !== void 0 ? newEmail : oldEmail,
                             password: newPassword !== null && newPassword !== void 0 ? newPassword : oldPassword
                         }
                     });
