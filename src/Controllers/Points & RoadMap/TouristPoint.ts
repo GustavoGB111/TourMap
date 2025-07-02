@@ -267,7 +267,7 @@ export default async function RoutesTouristPoints() {
         }
     });
 
-    server.post("/publishOnOff/touristPoint", async (request, reply) => { // pode trocar tanto de on pra off
+    server.post("/publishOn/touristPoint", async (request, reply) => { // pode trocar tanto de on pra off
         const body = request.body as {idTouristPoint: string, idUser: string}
         const {idTouristPoint, idUser} = body
 
@@ -286,18 +286,6 @@ export default async function RoutesTouristPoints() {
                 return reply.status(400).send({ message: "ID do ponto turistico não existente" });
             };
 
-            if (idTouristPointExisting.isPublished == true) {
-                await prismaClient.ponto_Turistico.update({where: {id: idTouristPoint},
-                data: {
-                    isPublished: false
-                }
-                });
-
-                await prismaClient.notificationTouristPoint.delete({where: {idTouristPoint}})
-
-                return reply.status(200).send({message: "ponto turistico retirado de publicado com sucesso"})
-            }
-
             await prismaClient.ponto_Turistico.update({where: {id: idTouristPoint},
             data: {
                 isPublished: true
@@ -309,7 +297,7 @@ export default async function RoutesTouristPoints() {
                     userNotificationTouristPointByIdClient: {connect: {id: idUser}},
                     userNotificationTouristPointByIdTouristPoint: {connect: {id: idTouristPoint}}
                 }
-            })
+            });
             
             return reply.status(200).send({message: "ponto turistico publicado com sucesso"})
 
@@ -323,6 +311,26 @@ export default async function RoutesTouristPoints() {
             const response = await prismaClient.ponto_Turistico.findMany({where: {reportNumber: {gte: 3} }})
 
             return reply.status(200).send({response, message: "pontos turisticos com mais de 3 denuncias"})
+        } catch (error) {
+            reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
+        }
+    });
+
+    server.get("/get/notPublished/touristPoint", async (request, reply) => {
+        try {
+            const response = await prismaClient.ponto_Turistico.findMany({where: {isPublished: false}});
+            reply.status(200).send({response, message: "todas as rotas não publicadas de touristPoint"});
+
+        } catch (error) {
+            reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
+        }
+    });
+
+    server.get("/get/Published/touristPoint", async (request, reply) => {
+        try {
+            const response = await prismaClient.ponto_Turistico.findMany({where: {isPublished: true}});
+            reply.status(200).send({response, message: "todas as rotas publicadas de touristPoint"});
+            
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
         }

@@ -281,7 +281,7 @@ function RoutesCommercialPoint() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
-        exeServer_1.default.post("/publishOnOff/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+        exeServer_1.default.post("/publishOn/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCommercialPoint, idUser } = body;
             try {
@@ -302,20 +302,30 @@ function RoutesCommercialPoint() {
                     return reply.status(400).send({ message: "Você não é o dono do ponto comercial" });
                 }
                 ;
-                if (idCommercialPointExisting.isPublished == true) {
-                    yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idCommercialPoint },
-                        data: {
-                            isPublished: false
-                        }
-                    });
-                    return reply.status(200).send({ message: "ponto comercial retirado de publicado com sucesso" });
-                }
                 yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idCommercialPoint },
                     data: {
                         isPublished: true
                     }
                 });
                 return reply.status(200).send({ message: "ponto comercial publicado com sucesso" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.get("/get/notPublished/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield prismaClient_1.prismaClient.ponto_Comercial.findMany({ where: { isPublished: false } });
+                reply.status(200).send({ response, message: "todas as rotas não publicadas de commercialPoint" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.get("/get/Published/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield prismaClient_1.prismaClient.ponto_Comercial.findMany({ where: { isPublished: true } });
+                reply.status(200).send({ response, message: "todas as rotas publicadas de commercialPoint" });
             }
             catch (error) {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });

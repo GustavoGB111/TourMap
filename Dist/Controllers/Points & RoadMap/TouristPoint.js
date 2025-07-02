@@ -252,7 +252,7 @@ function RoutesTouristPoints() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
-        exeServer_1.default.post("/publishOnOff/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+        exeServer_1.default.post("/publishOn/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idTouristPoint, idUser } = body;
             try {
@@ -269,15 +269,6 @@ function RoutesTouristPoints() {
                     return reply.status(400).send({ message: "ID do ponto turistico não existente" });
                 }
                 ;
-                if (idTouristPointExisting.isPublished == true) {
-                    yield prismaClient_1.prismaClient.ponto_Turistico.update({ where: { id: idTouristPoint },
-                        data: {
-                            isPublished: false
-                        }
-                    });
-                    yield prismaClient_1.prismaClient.notificationTouristPoint.delete({ where: { idTouristPoint } });
-                    return reply.status(200).send({ message: "ponto turistico retirado de publicado com sucesso" });
-                }
                 yield prismaClient_1.prismaClient.ponto_Turistico.update({ where: { id: idTouristPoint },
                     data: {
                         isPublished: true
@@ -299,6 +290,24 @@ function RoutesTouristPoints() {
             try {
                 const response = yield prismaClient_1.prismaClient.ponto_Turistico.findMany({ where: { reportNumber: { gte: 3 } } });
                 return reply.status(200).send({ response, message: "pontos turisticos com mais de 3 denuncias" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.get("/get/notPublished/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield prismaClient_1.prismaClient.ponto_Turistico.findMany({ where: { isPublished: false } });
+                reply.status(200).send({ response, message: "todas as rotas não publicadas de touristPoint" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
+        exeServer_1.default.get("/get/Published/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield prismaClient_1.prismaClient.ponto_Turistico.findMany({ where: { isPublished: true } });
+                reply.status(200).send({ response, message: "todas as rotas publicadas de touristPoint" });
             }
             catch (error) {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });

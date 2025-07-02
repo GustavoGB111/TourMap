@@ -319,7 +319,7 @@ export default async function RoutesCommercialPoint() {
         }
     });
 
-    server.post("/publishOnOff/commercialPoint", async (request, reply) => { // pode trocar tanto de on pra off
+    server.post("/publishOn/commercialPoint", async (request, reply) => { // pode trocar tanto de on pra off
         const body = request.body as {idCommercialPoint: string, idUser: string}
         const {idCommercialPoint, idUser} = body
 
@@ -341,16 +341,6 @@ export default async function RoutesCommercialPoint() {
                 return reply.status(400).send({ message: "Você não é o dono do ponto comercial" });
             };
 
-            if (idCommercialPointExisting.isPublished == true) {
-                await prismaClient.ponto_Comercial.update({where: {id: idCommercialPoint},
-                data: {
-                    isPublished: false
-                }
-                });
-
-                return reply.status(200).send({message: "ponto comercial retirado de publicado com sucesso"})
-            }
-
             await prismaClient.ponto_Comercial.update({where: {id: idCommercialPoint},
             data: {
                 isPublished: true
@@ -359,6 +349,26 @@ export default async function RoutesCommercialPoint() {
             
             return reply.status(200).send({message: "ponto comercial publicado com sucesso"})
 
+        } catch (error) {
+            reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
+        }
+    });
+
+    server.get("/get/notPublished/commercialPoint", async (request, reply) => {
+        try {
+            const response = await prismaClient.ponto_Comercial.findMany({where: {isPublished: false}});
+            reply.status(200).send({response ,message: "todas as rotas não publicadas de commercialPoint"});
+
+        } catch (error) {
+            reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
+        }
+    });
+
+    server.get("/get/Published/commercialPoint", async (request, reply) => {
+        try {
+            const response = await prismaClient.ponto_Comercial.findMany({where: {isPublished: true}});
+            reply.status(200).send({response ,message: "todas as rotas publicadas de commercialPoint"});
+            
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
         }
