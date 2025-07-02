@@ -331,5 +331,20 @@ function RoutesCommercialPoint() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        exeServer_1.default.post("/get/reports/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idCommercialPoint } = body;
+            try {
+                const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findMany({ where: { id: idCommercialPoint } });
+                if (!idCommercialPointExisting) {
+                    reply.status(500).send({ message: "o ponto comercial não existe" });
+                }
+                const response = yield prismaClient_1.prismaClient.reportCommercialPoint.findMany({ where: { idCommercialPoint } });
+                return reply.status(200).send({ response, message: "todas as denuncias do ponto comercial" });
+            }
+            catch (error) {
+                reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
+            }
+        }));
     });
 }

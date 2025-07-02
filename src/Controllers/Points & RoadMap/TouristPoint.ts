@@ -306,11 +306,21 @@ export default async function RoutesTouristPoints() {
         }
     });
 
-    server.get("/get/threeOrMoreReports/touristPoint", async (request, reply) => {
-        try {
-            const response = await prismaClient.ponto_Turistico.findMany({where: {reportNumber: {gte: 3} }})
+    server.post("/get/reports/touristPoint", async (request, reply) => {
+        const body = request.body as {idTouristPoint: string};
+        const {idTouristPoint} = body;
 
-            return reply.status(200).send({response, message: "pontos turisticos com mais de 3 denuncias"})
+        try {
+            const idTouristPointExisting = await prismaClient.ponto_Turistico.findMany({where: {id: idTouristPoint}});
+
+            if(!idTouristPointExisting) {
+                reply.status(500).send({message: "o ponto turistico não existe"});
+            }
+
+            const response = await prismaClient.reportTouristPoint.findMany({where: {idTouristPoint}});
+
+            return reply.status(200).send({response, message: "todas as denuncias do ponto turistico"});
+            
         } catch (error) {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
         }

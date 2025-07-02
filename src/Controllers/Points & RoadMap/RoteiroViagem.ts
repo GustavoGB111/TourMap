@@ -440,4 +440,24 @@ export default async function RoutesRoadMap() {
             reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
         }
     });
+
+    server.post("/get/reports/roadMap", async (request, reply) => {
+        const body = request.body as {idRoadMap: string};
+        const {idRoadMap} = body;
+
+        try {
+            const idRoadMapExisting = await prismaClient.travel_Road_Map.findMany({where: {id: idRoadMap}});
+
+            if(!idRoadMapExisting) {
+                reply.status(500).send({message: "o roadMap não existe"});
+            }
+
+            const response = await prismaClient.reportRoadMap.findMany({where: {idRoadMap}});
+
+            return reply.status(200).send({response, message: "todas as denuncias do roadMap"});
+            
+        } catch (error) {
+            reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});
+        }
+    });
 }

@@ -286,10 +286,16 @@ function RoutesTouristPoints() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
-        exeServer_1.default.get("/get/threeOrMoreReports/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+        exeServer_1.default.post("/get/reports/touristPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            const body = request.body;
+            const { idTouristPoint } = body;
             try {
-                const response = yield prismaClient_1.prismaClient.ponto_Turistico.findMany({ where: { reportNumber: { gte: 3 } } });
-                return reply.status(200).send({ response, message: "pontos turisticos com mais de 3 denuncias" });
+                const idTouristPointExisting = yield prismaClient_1.prismaClient.ponto_Turistico.findMany({ where: { id: idTouristPoint } });
+                if (!idTouristPointExisting) {
+                    reply.status(500).send({ message: "o ponto turistico não existe" });
+                }
+                const response = yield prismaClient_1.prismaClient.reportTouristPoint.findMany({ where: { idTouristPoint } });
+                return reply.status(200).send({ response, message: "todas as denuncias do ponto turistico" });
             }
             catch (error) {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
