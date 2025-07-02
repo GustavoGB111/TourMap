@@ -20,7 +20,7 @@ model User_Client {
   name String
   email String  @unique
   password String
-  userImageUrl String? @unique @default("")
+  userImageUrl String? @default("")
 
   avaliationsByEmailClient AvaliationRoadMap[] @relation("avaliationsRoadMapByClientEmail")
   avaliationsRoadMapByIdClient AvaliationRoadMap[] @relation("avaliationsRoadMapByClientId")
@@ -64,7 +64,7 @@ model User_Business {
   email String @unique
   telefone String @unique
   password String
-  userImageUrl String? @unique @default("")
+  userImageUrl String? @default("")
 
   pontosComerciais Ponto_Comercial[]
 }
@@ -75,7 +75,7 @@ model Ponto_Comercial {
   description String
   local String @unique
   creationDate DateTime @db.Date
-  userImageUrl String? @unique @default("")
+  userImageUrl String? @default("")
 
   reportNumber Int @default(0)
   isPublished Boolean @default(false)
@@ -103,7 +103,7 @@ model Ponto_Turistico {
   description String
   creationDate DateTime @db.Date
   local String @unique
-  userImageUrl String? @unique @default("")
+  userImageUrl String? @default("")
 
   reportNumber Int @default(0)
   isPublished Boolean @default(false)
@@ -131,7 +131,7 @@ model Travel_Road_Map {
   idCreator String
   avaliationValue Int @default(0)
   isPublished Boolean @default(false)
-  userImageUrl String? @unique @default("")
+  userImageUrl String? @default("")
   reportNumber Int @default(0)
 
   userClient User_Client @relation( fields: [idCreator], references: [id], onDelete: Cascade)
