@@ -15,15 +15,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = RoutesBusiness;
 const exeServer_1 = __importDefault(require("../../Test/exeServer"));
 const prismaClient_1 = require("../../Database/prismaClient");
+// Função principal que define todas as rotas relacionadas ao usuário BUSINESS
 function RoutesBusiness() {
     return __awaiter(this, void 0, void 0, function* () {
+        // Rota de cadastro de usuário BUSINESS
         exeServer_1.default.post("/register/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
+            // Extraindo corpo da requisição
             const body = request.body;
             const { name, email, password, CNPJ, telefone } = body;
+            // Regex para validar formato do email e CNPJ
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const CNPJRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
             try {
+                // Verifica se já existe email cadastrado
                 const existingUserEmail = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email } });
+                // Validações básicas de entrada
                 if (!name || !email || !telefone) {
                     return reply.status(400).send({ message: "Nome, telefone ou Email não pode ser vazio" });
                 }
@@ -39,6 +45,7 @@ function RoutesBusiness() {
                 if (existingUserEmail) {
                     return reply.status(400).send({ message: "Usuario já cadastrado" });
                 }
+                // Cria novo usuário BUSINESS
                 const response = yield prismaClient_1.prismaClient.user_Business.create({
                     data: {
                         name,
@@ -56,7 +63,7 @@ function RoutesBusiness() {
             }
             ;
         }));
-        //Login BUSINESS
+        // Rota de login do usuário BUSINESS
         exeServer_1.default.post("/login/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { email, password } = body;
@@ -64,11 +71,13 @@ function RoutesBusiness() {
                 if (!email || !password) {
                     return reply.status(404).send({ message: "Email ou Senha não preenchidos" });
                 }
+                // Busca usuário pelo email
                 const response = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { email } });
                 if (!response) {
                     return reply.status(404).send({ message: "Usuario não cadastrado" });
                 }
                 ;
+                // Verifica se email e senha coincidem
                 if (response.email !== email && response.password !== password) {
                     return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
                 }
@@ -79,7 +88,7 @@ function RoutesBusiness() {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
-        //Get BUSINESS
+        // Rota para buscar um usuário BUSINESS pelo ID
         exeServer_1.default.post("/get/business/id", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id } = body;
@@ -99,7 +108,7 @@ function RoutesBusiness() {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
-        //Get BUSINESS LIST
+        // Rota para listar todos os usuários BUSINESS
         exeServer_1.default.get("/get/business/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.user_Business.findMany();
@@ -112,6 +121,7 @@ function RoutesBusiness() {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
+        // Rota para atualizar dados de um usuário BUSINESS
         exeServer_1.default.post("/update/business", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id, newName, oldPassword, newPassword, newTelefone, userImageUrl } = body;
@@ -128,6 +138,7 @@ function RoutesBusiness() {
                     return reply.status(500).send({ message: "as senhas não se coincidem" });
                 }
                 ;
+                // Atualiza os dados do usuário BUSINESS
                 const response = yield prismaClient_1.prismaClient.user_Business.update({
                     where: { id },
                     data: {
@@ -143,7 +154,7 @@ function RoutesBusiness() {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
-        // não deve ser usado
+        // Rota para deletar todos os registros de usuários BUSINESS — NÃO RECOMENDADA PARA USO
         exeServer_1.default.delete("/delete/business/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield prismaClient_1.prismaClient.user_Business.deleteMany({});

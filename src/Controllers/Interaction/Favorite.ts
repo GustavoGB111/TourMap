@@ -27,7 +27,7 @@ export default async function RoutesFavorite() {
             const idTouristPointExisting = await prismaClient.ponto_Turistico.findUnique({where: {id: idTouristPoint}});
 
             // Verifica se já existe um favorito associado
-            const hasFavorite = await prismaClient.favoriteTouristPoint.findUnique({where: {idTouristPoint}});
+            const hasFavorite = await prismaClient.favoriteTouristPoint.findUnique({where: {idTouristPoint, idUserClient: idUser}});
 
             // Retorna erro se não encontrar os dados no banco
             if (!idUserExisting || !idTouristPointExisting) {
@@ -182,7 +182,7 @@ export default async function RoutesFavorite() {
                 }
             });
 
-            return reply.status(200).send({message: "favoritado com sucesso"});
+            return reply.status(200).send({message: "desfavoritado com sucesso"});
      
         } catch (error) {
             return reply.status(500).send({message: "erro interno no servidor ou requisição ao banco de dados falha", error});

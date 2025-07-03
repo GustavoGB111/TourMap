@@ -15,19 +15,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = RoutesRoadMap;
 const exeServer_1 = __importDefault(require("../../Test/exeServer"));
 const prismaClient_1 = require("../../Database/prismaClient");
+// Função principal que define as rotas relacionadas ao "road map"
 function RoutesRoadMap() {
     return __awaiter(this, void 0, void 0, function* () {
+        // Criação de um novo roteiro de viagem
         exeServer_1.default.post("/register/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { title, description, idCreator } = body;
             try {
+                // Validação dos campos
                 if (!title || !description || !idCreator) {
                     return reply.status(404).send({ message: "algum campo não foi preenchido corretamente" });
                 }
+                // Verifica se o usuário criador existe
                 const idIsExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idCreator } });
                 if (!idIsExisting) {
                     return reply.status(500).send({ message: "usuario não encontrado" });
                 }
+                // Cria o road map
                 const response = yield prismaClient_1.prismaClient.travel_Road_Map.create({
                     data: {
                         title,
@@ -41,18 +46,16 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Atualiza um roteiro de viagem com novos dados
         exeServer_1.default.post("/update/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
-            const body = request.body; // se for adicionar cidade precisa de estado e país, se for adicionar estado, precisa de país
+            const body = request.body;
             const { title, description, idCommercialPoint, idTouristingPoint, idCreator, idRoadMap, country, state, city, userImageUrl } = body;
             try {
+                // Criação de localizações caso não existam
                 if (country) {
                     const countryAlreadyExist = yield prismaClient_1.prismaClient.country.findUnique({ where: { name: country } });
                     if (!countryAlreadyExist) {
-                        yield prismaClient_1.prismaClient.country.create({
-                            data: {
-                                name: country
-                            }
-                        });
+                        yield prismaClient_1.prismaClient.country.create({ data: { name: country } });
                     }
                 }
                 if (state) {
@@ -78,6 +81,7 @@ function RoutesRoadMap() {
                         });
                     }
                 }
+                // Validação de identificadores
                 if (!idRoadMap || !idCreator) {
                     return reply.status(500).send({ message: "id do criador ou id do roteiro não preenchido" });
                 }
@@ -91,6 +95,7 @@ function RoutesRoadMap() {
                     return reply.status(500).send({ message: "Você não é o dono do RoadMap" });
                 }
                 ;
+                // Atualização dos dados do roadmap
                 const response = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap, idCreator } });
                 yield prismaClient_1.prismaClient.travel_Road_Map.update({
                     where: { id: idRoadMap, idCreator },
@@ -111,6 +116,7 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Publica ou despublica um roadmap
         exeServer_1.default.post("/publishOnOff/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCreator, id } = body;
@@ -151,6 +157,7 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Exclusão de um roadmap
         exeServer_1.default.post("/delete/roadMap/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCreator, id } = body;
@@ -175,9 +182,10 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Desconecta um ponto turístico ou comercial de um roadmap
         exeServer_1.default.post("/delete/point/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
-            const { idCreator, id, idPoint, typePoint } = body; // typePoint deve ser "commercial" ou "tourist"
+            const { idCreator, id, idPoint, typePoint } = body;
             try {
                 if (!id || !idCreator) {
                     return reply.status(500).send({ message: "id do criador ou id do roteiro não encontrado" });
@@ -227,6 +235,7 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Busca um roadmap específico
         exeServer_1.default.post("/get/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id } = body;
@@ -247,6 +256,7 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Retorna a lista de todos os roadmaps cadastrados
         exeServer_1.default.post("/get/list/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.travel_Road_Map.findMany();
@@ -256,10 +266,12 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Cria uma imagem associada a um roadmap
         exeServer_1.default.post("/create/image/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser, idRoadMap, ImageUrl } = body;
             try {
+                // Verifica se o usuário e o roadmap existem
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
                 const idRoadMapPointExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
                 if (!idUserExisting) {
@@ -278,6 +290,7 @@ function RoutesRoadMap() {
                     return reply.status(400).send({ message: "você não é o dono do roadMap" });
                 }
                 ;
+                // Cria a imagem no banco
                 yield prismaClient_1.prismaClient.imageRoadMap.create({
                     data: {
                         image: ImageUrl,
@@ -290,6 +303,7 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Deleta uma imagem associada a um roadmap
         exeServer_1.default.delete("/delete/image/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser, imageUrl, idRoadMap } = body;
@@ -297,8 +311,10 @@ function RoutesRoadMap() {
                 if (!idUser || !idRoadMap || !imageUrl) {
                     return reply.status(400).send({ message: "Algum campo não completado" });
                 }
+                // Verifica existência do usuário, roadmap e imagem
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
                 const idRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
+                const imageUrlExisting = yield prismaClient_1.prismaClient.imageRoadMap.findUnique({ where: { idRoadMap, image: imageUrl } });
                 if (!idUserExisting) {
                     return reply.status(400).send({ message: "ID do usuário não existente" });
                 }
@@ -307,11 +323,11 @@ function RoutesRoadMap() {
                     return reply.status(400).send({ message: "ID do roadMap não existente" });
                 }
                 ;
-                const imageUrlExisting = yield prismaClient_1.prismaClient.imageRoadMap.findUnique({ where: { idRoadMap, image: imageUrl } });
                 if (!imageUrlExisting) {
                     return reply.status(400).send({ message: "imagem não existente" });
                 }
                 ;
+                // Deleta a imagem
                 yield prismaClient_1.prismaClient.imageRoadMap.delete({ where: { idRoadMap, image: imageUrl } });
                 return reply.status(200).send({ message: "imagem excluida com sucesso" });
             }
@@ -319,6 +335,7 @@ function RoutesRoadMap() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Retorna a lista de imagens associadas a um determinado roadmap
         exeServer_1.default.post("/get/image/list/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idRoadMap } = body;
@@ -331,6 +348,7 @@ function RoutesRoadMap() {
             }
             ;
         }));
+        // Permite a um usuário denunciar um roadmap
         exeServer_1.default.post("/report/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser, idRoadMap, contentReport } = body;
@@ -338,6 +356,7 @@ function RoutesRoadMap() {
                 if (!idUser || !idRoadMap || !contentReport) {
                     return reply.status(400).send({ message: "Algum campo não completado" });
                 }
+                // Verifica se já foi reportado anteriormente
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
                 const idRoadMapExisting = yield prismaClient_1.prismaClient.travel_Road_Map.findUnique({ where: { id: idRoadMap } });
                 const reportExisting = yield prismaClient_1.prismaClient.reportRoadMap.findUnique({ where: { idUserReport: idUser, idRoadMap } });
@@ -353,9 +372,11 @@ function RoutesRoadMap() {
                     return reply.status(400).send({ message: "você já denunciou esse roadMap" });
                 }
                 ;
+                // Atualiza número de denúncias no roadmap
                 const { reportNumber } = idRoadMapExisting;
                 const reportNum = reportNumber + 1;
                 yield prismaClient_1.prismaClient.travel_Road_Map.update({ where: { id: idRoadMap }, data: { reportNumber: reportNum } });
+                // Cria a denúncia
                 yield prismaClient_1.prismaClient.reportRoadMap.create({
                     data: {
                         content: contentReport,
@@ -369,6 +390,7 @@ function RoutesRoadMap() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Publica um roadmap (sem alternância como na outra rota)
         exeServer_1.default.post("/publishOn/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idRoadMap, idUser } = body;
@@ -390,7 +412,9 @@ function RoutesRoadMap() {
                     return reply.status(400).send({ message: "Você não é o dono do roadMap" });
                 }
                 ;
-                yield prismaClient_1.prismaClient.travel_Road_Map.update({ where: { id: idRoadMap },
+                // Publica o roadmap
+                yield prismaClient_1.prismaClient.travel_Road_Map.update({
+                    where: { id: idRoadMap },
                     data: {
                         isPublished: true
                     }
@@ -401,6 +425,7 @@ function RoutesRoadMap() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Retorna todas as denúncias feitas para um roadmap
         exeServer_1.default.post("/get/reports/roadMap", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idRoadMap } = body;
@@ -409,6 +434,7 @@ function RoutesRoadMap() {
                 if (!idRoadMapExisting) {
                     reply.status(500).send({ message: "o roadMap não existe" });
                 }
+                // Busca todas as denúncias
                 const response = yield prismaClient_1.prismaClient.reportRoadMap.findMany({ where: { idRoadMap } });
                 return reply.status(200).send({ response, message: "todas as denuncias do roadMap" });
             }

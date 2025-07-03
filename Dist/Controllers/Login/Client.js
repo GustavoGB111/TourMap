@@ -15,13 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = RoutesClient;
 const exeServer_1 = __importDefault(require("../../Test/exeServer"));
 const prismaClient_1 = require("../../Database/prismaClient");
+// Define as rotas para gerenciamento de usuários do tipo CLIENT
 function RoutesClient() {
     return __awaiter(this, void 0, void 0, function* () {
+        // Rota de cadastro de cliente
         exeServer_1.default.post("/register/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { name, email, password } = body;
             try {
+                // Verifica se o e-mail já está cadastrado
                 const existingUserEmail = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { email } });
+                // Validação dos campos obrigatórios
                 if (!name || !email) {
                     return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
                 }
@@ -31,6 +35,7 @@ function RoutesClient() {
                 if (existingUserEmail) {
                     return reply.status(400).send({ message: "Email já cadastrado" });
                 }
+                // Criação do usuário na base de dados
                 const response = yield prismaClient_1.prismaClient.user_Client.create({
                     data: {
                         name,
@@ -46,7 +51,7 @@ function RoutesClient() {
             }
             ;
         }));
-        //Login CLIENT
+        // Rota de login para cliente
         exeServer_1.default.post("/login/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { email, password } = body;
@@ -59,6 +64,7 @@ function RoutesClient() {
                     return reply.status(404).send({ message: "Usuario não cadastrado" });
                 }
                 ;
+                // Valida se os campos conferem
                 if (response.email !== email || response.password !== password) {
                     return reply.status(404).send({ message: "Algum campo preenchido incorretamente" });
                 }
@@ -69,7 +75,7 @@ function RoutesClient() {
                 return reply.status(500).send({ error });
             }
         }));
-        //Get CLIENT
+        // Rota para buscar cliente pelo ID
         exeServer_1.default.post("/get/client/id", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id } = body;
@@ -88,7 +94,7 @@ function RoutesClient() {
                 return reply.status(500).send(error);
             }
         }));
-        //Get CLIENT LIST
+        // Rota para retornar lista completa de clientes
         exeServer_1.default.get("/get/client/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.user_Client.findMany();
@@ -102,6 +108,7 @@ function RoutesClient() {
                 return reply.status(500).send(error);
             }
         }));
+        // Rota para atualizar dados do cliente
         exeServer_1.default.post("/update/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { id, oldName, newName, oldPassword, newPassword, userImageUrl } = body;
@@ -118,6 +125,7 @@ function RoutesClient() {
                     return reply.status(404).send({ message: "Campos Inválidos" });
                 }
                 ;
+                // Atualização de dados do cliente
                 const response = yield prismaClient_1.prismaClient.user_Client.update({
                     where: { id },
                     data: {
@@ -132,7 +140,7 @@ function RoutesClient() {
                 return reply.status(500).send({ message: "Erro desconhecido ou interno no servidor...", error });
             }
         }));
-        // não deve ser usado
+        // Rota para deletar todos os clientes - não recomendada
         exeServer_1.default.delete("/delete/client/list", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield prismaClient_1.prismaClient.user_Client.deleteMany({});
@@ -144,6 +152,7 @@ function RoutesClient() {
                 return reply.status(500).send({ message: "Erro interno no servidor", error });
             }
         }));
+        // Rota para listar notificações de pontos turísticos para um cliente específico
         exeServer_1.default.post("/get/list/notificationTouristPoint/client", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser } = body;

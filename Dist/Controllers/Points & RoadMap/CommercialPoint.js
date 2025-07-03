@@ -15,18 +15,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = RoutesCommercialPoint;
 const prismaClient_1 = require("../../Database/prismaClient");
 const exeServer_1 = __importDefault(require("../../Test/exeServer"));
+// Função principal que define as rotas relacionadas ao ponto comercial
 function RoutesCommercialPoint() {
     return __awaiter(this, void 0, void 0, function* () {
+        // Rota para registrar um novo ponto comercial
         exeServer_1.default.post("/register/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idBusiness, name, local, description, creationDate } = body;
             try {
+                // Verifica se os campos obrigatórios foram fornecidos
                 if (!name || !local || !description || !creationDate) {
                     return reply.status(400).send({ message: "Campos inválidos" });
                 }
                 if (!idBusiness) {
                     return reply.status(400).send({ message: "id da Empresa não fornecido" });
                 }
+                // Verifica se o ID da empresa existe e se o local já está ocupado
                 const businessIdExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idBusiness } });
                 const localExistingTourist = yield prismaClient_1.prismaClient.ponto_Turistico.findUnique({ where: { local } });
                 const localExistingCommercial = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { local } });
@@ -36,6 +40,7 @@ function RoutesCommercialPoint() {
                 if (!!localExistingCommercial || !!localExistingTourist) {
                     return reply.status(400).send({ message: "local já ocupado" });
                 }
+                // Cria o ponto comercial no banco de dados
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.create({
                     data: {
                         name,
@@ -53,10 +58,12 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Rota para atualizar um ponto comercial
         exeServer_1.default.post("/update/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idBusiness, idPoint, newName, newLocal, newDescription } = body;
             try {
+                // Validações dos campos
                 if (!newName || !newLocal || !newDescription) {
                     return reply.status(400).send({ message: "Campos inválidos" });
                 }
@@ -66,6 +73,7 @@ function RoutesCommercialPoint() {
                 if (!idPoint) {
                     return reply.status(400).send({ message: "id do Ponto Comercial não fornecido" });
                 }
+                // Verificações de existência
                 const idBusinessExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idBusiness } });
                 const idPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idPoint } });
                 const localExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { local: newLocal } });
@@ -82,6 +90,7 @@ function RoutesCommercialPoint() {
                 if (!!localExisting) {
                     return reply.status(400).send({ message: "local já ocupado" });
                 }
+                // Atualiza os dados do ponto comercial
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idPoint },
                     data: {
                         name: newName !== null && newName !== void 0 ? newName : name,
@@ -95,10 +104,12 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Rota para buscar um ponto comercial específico
         exeServer_1.default.post("/get/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idBusiness, idPoint } = body;
             try {
+                // Validações e verificações
                 if (!idBusiness) {
                     return reply.status(400).send({ message: "id da Empresa não fornecido" });
                 }
@@ -117,6 +128,7 @@ function RoutesCommercialPoint() {
                 if (businessId != idBusiness) {
                     return reply.status(400).send({ message: "Você não é a empresa responsavel pelo ponto comercial..." });
                 }
+                // Retorna o ponto comercial
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idPoint } });
                 reply.status(200).send({ response: response === null || response === void 0 ? void 0 : response.id, message: "dados do ponto comercial" });
             }
@@ -124,6 +136,7 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Lista todos os pontos comerciais (sem filtro por empresa)
         exeServer_1.default.post("/get/list/commercialPoint/idBusiness", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.findMany();
@@ -133,6 +146,7 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Lista geral de todos os pontos comerciais
         exeServer_1.default.get("/get/list/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.findMany();
@@ -142,26 +156,20 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Deleta um ponto comercial (verificando se é o dono)
         exeServer_1.default.delete("/delete/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idBusiness, idPoint } = body;
             try {
-                if (!idBusiness) {
-                    return reply.status(400).send({ message: "id da Empresa não fornecido" });
-                }
-                if (!idPoint) {
-                    return reply.status(400).send({ message: "id do Ponto Comercial não fornecido" });
+                if (!idBusiness || !idPoint) {
+                    return reply.status(400).send({ message: "Campos obrigatórios não fornecidos" });
                 }
                 const idBusinessExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idBusiness } });
                 const idPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idPoint } });
-                if (!idBusinessExisting) {
-                    return reply.status(400).send({ message: "id da Empresa não existe" });
+                if (!idBusinessExisting || !idPointExisting) {
+                    return reply.status(400).send({ message: "Empresa ou ponto comercial não existente" });
                 }
-                if (!idPointExisting) {
-                    return reply.status(400).send({ message: "id do ponto comercial não existe" });
-                }
-                const { businessId } = idPointExisting;
-                if (businessId != idBusiness) {
+                if (idPointExisting.businessId != idBusiness) {
                     return reply.status(400).send({ message: "Você não é a empresa responsavel pelo ponto turistico..." });
                 }
                 yield prismaClient_1.prismaClient.ponto_Comercial.delete({ where: { id: idPoint } });
@@ -171,27 +179,25 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Denúncia de ponto comercial por um usuário
         exeServer_1.default.post("/report/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser, idCommercialPoint, contentReport } = body;
             try {
+                // Validação e verificações
                 if (!idUser || !idCommercialPoint || !contentReport) {
                     return reply.status(400).send({ message: "Algum campo não completado" });
                 }
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Client.findUnique({ where: { id: idUser } });
                 const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idCommercialPoint } });
                 const reportExisting = yield prismaClient_1.prismaClient.reportCommercialPoint.findUnique({ where: { idCommercialPoint, idUserReport: idUser } });
-                if (!idUserExisting) {
-                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                if (!idUserExisting || !idCommercialPointExisting) {
+                    return reply.status(400).send({ message: "ID inválido" });
                 }
-                ;
-                if (!idCommercialPointExisting) {
-                    return reply.status(400).send({ message: "ID do ponto Comercial não existente" });
-                }
-                ;
                 if (!!reportExisting) {
                     return reply.status(400).send({ message: "você já denunciou esse ponto comercial" });
                 }
+                // Cria denúncia e incrementa contador
                 const { reportNumber } = idCommercialPointExisting;
                 const reportNum = reportNumber + 1;
                 yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idCommercialPoint }, data: { reportNumber: reportNum } });
@@ -208,24 +214,16 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Upload de imagem para ponto comercial
         exeServer_1.default.post("/create/image/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idUser, idCommercialPoint, ImageUrl } = body;
             try {
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
                 const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idCommercialPoint } });
-                if (!idUserExisting) {
-                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                if (!idUserExisting || !idCommercialPointExisting || !ImageUrl) {
+                    return reply.status(400).send({ message: "Campos inválidos" });
                 }
-                ;
-                if (!idCommercialPointExisting) {
-                    return reply.status(400).send({ message: "ID do ponto Comercial não existente" });
-                }
-                ;
-                if (!ImageUrl) {
-                    return reply.status(400).send({ message: "a url não pode ser vazia" });
-                }
-                ;
                 yield prismaClient_1.prismaClient.imageCommercialPoint.create({
                     data: {
                         image: ImageUrl,
@@ -238,6 +236,7 @@ function RoutesCommercialPoint() {
                 return reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Lista imagens de um ponto comercial
         exeServer_1.default.post("/get/image/list/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCommercialPoint } = body;
@@ -249,6 +248,7 @@ function RoutesCommercialPoint() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Exclui imagem de um ponto comercial
         exeServer_1.default.delete("/delete/image/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCommercialPoint, imageUrl, idUser } = body;
@@ -258,22 +258,13 @@ function RoutesCommercialPoint() {
                 }
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
                 const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idCommercialPoint } });
-                if (!idUserExisting) {
-                    return reply.status(400).send({ message: "ID do usuário não existente" });
-                }
-                ;
-                if (!idCommercialPointExisting) {
-                    return reply.status(400).send({ message: "ID do ponto comercial não existente" });
-                }
-                ;
                 const imageUrlExisting = yield prismaClient_1.prismaClient.imageCommercialPoint.findUnique({ where: { idCommercialPoint, image: imageUrl } });
-                if (idUser != idCommercialPointExisting.businessId) {
+                if (idUser != (idCommercialPointExisting === null || idCommercialPointExisting === void 0 ? void 0 : idCommercialPointExisting.businessId)) {
                     return reply.status(400).send({ message: "Você não é o dono do ponto comercial" });
                 }
                 if (!imageUrlExisting) {
                     return reply.status(400).send({ message: "imagem não existente" });
                 }
-                ;
                 yield prismaClient_1.prismaClient.imageCommercialPoint.delete({ where: { idCommercialPoint, image: imageUrl } });
                 return reply.status(200).send({ message: "imagem excluida com sucesso" });
             }
@@ -281,6 +272,7 @@ function RoutesCommercialPoint() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Publica o ponto comercial (ativa visibilidade)
         exeServer_1.default.post("/publishOn/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCommercialPoint, idUser } = body;
@@ -290,29 +282,20 @@ function RoutesCommercialPoint() {
                 }
                 const idUserExisting = yield prismaClient_1.prismaClient.user_Business.findUnique({ where: { id: idUser } });
                 const idCommercialPointExisting = yield prismaClient_1.prismaClient.ponto_Comercial.findUnique({ where: { id: idCommercialPoint } });
-                if (!idUserExisting) {
-                    return reply.status(400).send({ message: "ID do usuário não existente" });
+                if (!idUserExisting || !idCommercialPointExisting) {
+                    return reply.status(400).send({ message: "ID inválido" });
                 }
-                ;
-                if (!idCommercialPointExisting) {
-                    return reply.status(400).send({ message: "ID do ponto comercial não existente" });
-                }
-                ;
                 if (idCommercialPointExisting.businessId != idUser) {
                     return reply.status(400).send({ message: "Você não é o dono do ponto comercial" });
                 }
-                ;
-                yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idCommercialPoint },
-                    data: {
-                        isPublished: true
-                    }
-                });
+                yield prismaClient_1.prismaClient.ponto_Comercial.update({ where: { id: idCommercialPoint }, data: { isPublished: true } });
                 return reply.status(200).send({ message: "ponto comercial publicado com sucesso" });
             }
             catch (error) {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Lista de pontos comerciais não publicados
         exeServer_1.default.get("/get/notPublished/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.findMany({ where: { isPublished: false } });
@@ -322,6 +305,7 @@ function RoutesCommercialPoint() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Lista de pontos comerciais publicados
         exeServer_1.default.get("/get/Published/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield prismaClient_1.prismaClient.ponto_Comercial.findMany({ where: { isPublished: true } });
@@ -331,6 +315,7 @@ function RoutesCommercialPoint() {
                 reply.status(500).send({ message: "erro interno no servidor ou requisição ao banco de dados falha", error });
             }
         }));
+        // Lista de denúncias de um ponto comercial
         exeServer_1.default.post("/get/reports/commercialPoint", (request, reply) => __awaiter(this, void 0, void 0, function* () {
             const body = request.body;
             const { idCommercialPoint } = body;

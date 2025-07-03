@@ -13,23 +13,25 @@ export default async function RoutesComment() {
     // Rota para criar comentário em um ponto turístico
     server.post("/create/touristPoint/comment", async (request, reply) => {
         // Extrai os campos do corpo da requisição
-        const body = request.body as {content: string; userEmail: string; idTouristPoint: string, idUser: string, datePublish: Date};
-        const {content, userEmail, idTouristPoint, idUser, datePublish} = body;
+        const body = request.body as {content: string; userEmail: string; idTouristPoint: string, idUser: string, datePublishNotFormatted: Date};
+        const {content, userEmail, idTouristPoint, idUser, datePublishNotFormatted} = body;
 
         try {
+            const datePublish = new Date(body.datePublishNotFormatted);
+
             // Verifica se todos os campos obrigatórios estão preenchidos
             if (!content || !userEmail || !idTouristPoint || !idUser || !datePublish)  {
                 return reply.status(400).send({message: "algum campo não foi preenchido"});
             };
 
             // Verifica se o usuário com email e id existe
-            const userEmailAndIdExisting = await prismaClient.user_Client.findUnique({where: {email: userEmail, id: idUser}});
+            const userIdExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
             // Verifica se o ponto turístico existe
             const idTouristPointExisting = await prismaClient.ponto_Turistico.findUnique({where: {id: idTouristPoint}});
             
             // Retorna erro caso usuário ou ponto não existam
-            if(!userEmailAndIdExisting) {
-                return reply.status(400).send({message: "o email ou id não existe no banco de dados"});
+            if(!userIdExisting) {
+                return reply.status(400).send({message: "o id não existe no banco de dados"});
             };
             if(!idTouristPointExisting) {
                 return reply.status(400).send({message: "o ponto turistico não existe no banco de dados"});
@@ -56,19 +58,21 @@ export default async function RoutesComment() {
 
     // Rota para criar comentário em um ponto comercial
     server.post("/create/commercialPoint/comment", async (request, reply) => {
-        const body = request.body as {content: string; userEmail: string; idCommercialPoint: string, idUser: string, datePublish: Date};
-        const {content, userEmail, idCommercialPoint, idUser, datePublish} = body;
+        const body = request.body as {content: string; userEmail: string; idCommercialPoint: string, idUser: string, datePublishNotFormatted: Date};
+        const {content, userEmail, idCommercialPoint, idUser, datePublishNotFormatted} = body;
 
         try {
+            const datePublish = new Date(body.datePublishNotFormatted);
+
             if (!content || !userEmail || !idCommercialPoint || !idUser || !datePublish)  {
                 return reply.status(400).send({message: "algum campo não foi preenchido"});
             };
 
-            const userEmailAndIdExisting = await prismaClient.user_Client.findUnique({where: {email: userEmail, id: idUser}});
+            const userIdExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
             const idCommercialPointExisting = await prismaClient.ponto_Comercial.findUnique({where: {id: idCommercialPoint}});
             
-            if(!userEmailAndIdExisting) {
-                return reply.status(400).send({message: "o email ou id não existe no banco de dados"});
+            if(!userIdExisting) {
+                return reply.status(400).send({message: "o id não existe no banco de dados"});
             };
             if(!idCommercialPointExisting) {
                 return reply.status(400).send({message: "o ponto comercial não existe no banco de dados"});
@@ -93,19 +97,21 @@ export default async function RoutesComment() {
 
     // Rota para criar comentário em um roadmap
     server.post("/create/roadMap/comment", async (request, reply) => {
-        const body = request.body as {content: string; userEmail: string; idRoadMap: string; datePublish: Date; idUser: string};
-        const {content, userEmail, idRoadMap, datePublish, idUser} = body;
+        const body = request.body as {content: string; userEmail: string; idRoadMap: string; datePublishNotFormatted: Date; idUser: string};
+        const {content, userEmail, idRoadMap, datePublishNotFormatted, idUser} = body;
 
         try {
+            const datePublish = new Date(body.datePublishNotFormatted);
+
             if (!content || !userEmail || !idRoadMap || !idUser || !datePublish) {
                 return reply.status(400).send({message: "algum campo não foi preenchido"});
             };
 
-            const userEmailAndIdExisting = await prismaClient.user_Client.findUnique({where: {email: userEmail, id: idUser}});
+            const userIdExisting = await prismaClient.user_Client.findUnique({where: {id: idUser}});
             const idRoadMapExisting = await prismaClient.imageRoadMap.findUnique({where: {id: idRoadMap}});
             
-            if(!userEmailAndIdExisting) {
-                return reply.status(400).send({message: "o email ou id não existe no banco de dados"});
+            if(!userIdExisting) {
+                return reply.status(400).send({message: "o id não existe no banco de dados"});
             };
             if(!idRoadMapExisting) {
                 return reply.status(400).send({message: "o roadMap não existe no banco de dados"});
