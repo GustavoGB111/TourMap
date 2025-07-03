@@ -1,15 +1,19 @@
 import server from "../../Test/exeServer";
 import { prismaClient } from "../../Database/prismaClient";
 
+// Define as rotas para gerenciamento de usuários do tipo CLIENT
 export default async function RoutesClient() {
 
+    // Rota de cadastro de cliente
     server.post("/register/client", async (request, reply) => {
         const body = request.body as {name: string; email: string; password: string; };
         const {name, email, password} = body;
-    
+
         try {
+            // Verifica se o e-mail já está cadastrado
             const existingUserEmail = await prismaClient.user_Client.findUnique({where: {email}})
 
+            // Validação dos campos obrigatórios
             if (!name || !email) {
                 return reply.status(400).send({ message: "Nome ou Email não pode ser vazio" });
             }
@@ -19,7 +23,8 @@ export default async function RoutesClient() {
             if (existingUserEmail) {
                 return reply.status(400).send({ message: "Email já cadastrado" });
             }
-    
+
+            // Criação do usuário na base de dados
             const response = await prismaClient.user_Client.create({
                 data: {
                     name,
@@ -27,7 +32,7 @@ export default async function RoutesClient() {
                     password
                 }
             });
-    
+
             return reply.status(201).send({response: response.id, message: "cliente criado com sucesso"});
             
         } catch (error) {
@@ -35,23 +40,24 @@ export default async function RoutesClient() {
             return reply.status(500).send({ message: "Erro interno do servidor" });
         };
     });
-    
-    //Login CLIENT
+
+    // Rota de login para cliente
     server.post("/login/client", async (request, reply) => {
         const body = request.body as {email: string; password: string};
         const {email, password} = body;
-    
+
         try {
             if (!email || !password) {
                 return reply.status(404).send({message: "Email ou Senha não preenchidos"})
             }  
-    
+
             const response = await prismaClient.user_Client.findUnique({where: {email}})
-    
+
             if (!response ) {
                 return reply.status(404).send({message: "Usuario não cadastrado"});
             };
             
+            // Valida se os campos conferem
             if (response.email !== email || response.password !== password){
                 return reply.status(404).send({message: "Algum campo preenchido incorretamente"});
             };
@@ -61,10 +67,10 @@ export default async function RoutesClient() {
         } catch (error) {
             return reply.status(500).send({error});            
         }
-    
+
     });
-    
-    //Get CLIENT
+
+    // Rota para buscar cliente pelo ID
     server.post("/get/client/id", async (request, reply) => {
         const body = request.body as {id: string}
         const {id} = body
@@ -85,8 +91,8 @@ export default async function RoutesClient() {
             return reply.status(500).send(error);
         }
     });
-    
-    //Get CLIENT LIST
+
+    // Rota para retornar lista completa de clientes
     server.get("/get/client/list", async (request, reply) => {
         try {
             const response = await prismaClient.user_Client.findMany();
@@ -102,27 +108,29 @@ export default async function RoutesClient() {
         }
     });
 
+    // Rota para atualizar dados do cliente
     server.post("/update/client", async (request, reply) => {
         const body = request.body as {id: string, oldName: string, newName?: string, oldPassword: string, newPassword?: string, userImageUrl?: string};
         const {id ,oldName, newName, oldPassword, newPassword, userImageUrl} = body;
-    
+
         try {
             const userExisting = await prismaClient.user_Client.findUnique({where: {id}}) as {name: string, password: string};
-    
+
             if (!userExisting) {
                 return reply.status(500).send({message: "Usuario não existe"});
             }
             
             const {name, password} = userExisting; 
-    
+
             if (!oldName || !oldPassword) {
                 return reply.status(500).send({message: "Algum dos campo não foi preenchido"});
             }
-    
+
             if (name !== oldName && password !== oldPassword) {
                 return reply.status(404).send({message: "Campos Inválidos"});
             };
 
+            // Atualização de dados do cliente
             const response = await prismaClient.user_Client.update({
                 where: { id },
                 data: {
@@ -133,13 +141,13 @@ export default async function RoutesClient() {
             });
 
             return reply.status(200).send({response, message: "Atualizado com sucesso"});
-    
+
         } catch (error) {
             return reply.status(500).send({message: "Erro desconhecido ou interno no servidor...", error})    
         }
     })
     
-    // não deve ser usado
+    // Rota para deletar todos os clientes - não recomendada
     server.delete("/delete/client/list", async (request, reply) => {
         try {
             await prismaClient.user_Client.deleteMany({});
@@ -151,6 +159,7 @@ export default async function RoutesClient() {
         }
     });
 
+    // Rota para listar notificações de pontos turísticos para um cliente específico
     server.post("/get/list/notificationTouristPoint/client", async (request, reply) => {
         const body = request.body as {idUser: string}
         const {idUser} = body
